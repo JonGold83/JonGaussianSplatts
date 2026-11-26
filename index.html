@@ -94,25 +94,28 @@
   const SKYBOX = 'nebe_4k.jpg';
   const skyInput = document.getElementById('sky');
   try { const s = localStorage.getItem('skybox'); if (s !== null) skyInput.checked = s === '1'; } catch (e) {}
-  const url = f => `splatviewer.html?content=${encodeURIComponent(f)}` +
+  // title = název zobrazený v horní liště vieweru (viewer-topbar.js)
+  const url = (f, t) => `splatviewer.html?content=${encodeURIComponent(f)}` +
+    (t ? `&title=${encodeURIComponent(t)}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent(SKYBOX)}` : '');
+  const attr = s => s.replace(/"/g, '&quot;');
   const row = (n, m, extra = '') =>
     `<span class="dot"></span><span><div class="name">${n}</div><div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
 
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1)
-      return `<li><a class="item" data-f="${g.variants[0][2]}">${row(g.name, g.meta)}</a></li>`;
+      return `<li><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a></li>`;
     return `<li><details>
       <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} varianty</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f]) =>
-        `<li><a class="item" data-f="${f}">${row(n, m)}</a></li>`).join('')}</ul>
+        `<li><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a></li>`).join('')}</ul>
     </details></li>`;
   }).join('');
 
   // Odkazy si pamatují soubor v data-f; přepínač jen přepíše href (rozbalené skupiny zůstanou otevřené)
   const refresh = () => {
-    list.querySelectorAll('a[data-f]').forEach(a => a.href = url(a.dataset.f));
+    list.querySelectorAll('a[data-f]').forEach(a => a.href = url(a.dataset.f, a.dataset.t));
     document.getElementById('skyState').textContent = skyInput.checked ? 'on' : 'off';
   };
   skyInput.addEventListener('change', () => {
