@@ -1,0 +1,23 @@
+[
+  {"datum": "2026-11-26", "cas": "16:09", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice – low density", "soubor": "Liblice_LowDensity_0,7M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "15:09", "akce": "přidáno", "kategorie": "Stožár BTS Zlatníky", "nazev": "Stožár BTS Zlatníky – low density", "soubor": "Stozar_BTS_Zlatniky_LowDensity_0,8M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "12:58", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice – 3,3M", "soubor": "Liblice_3,3M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "11:03", "akce": "přidáno", "kategorie": "Rodinné domy", "nazev": "Klekle 2", "soubor": "Klekle2_B_depth_4,3M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "11:03", "akce": "přidáno", "kategorie": "Rodinné domy", "nazev": "Karel", "soubor": "KArel_Dum 4,6M 30k ites SH1.sog"},
+  {"datum": "2026-11-26", "cas": "10:07", "akce": "odstraněno", "kategorie": "Stožár BTS Zlatníky", "nazev": "Stožár BTS Zlatníky – 2,3M", "soubor": "2026_08_28-BTS_Zlatniky_2-3M.sog"},
+  {"datum": "2026-11-26", "cas": "09:57", "akce": "přidáno", "kategorie": "Stožár BTS Zlatníky", "nazev": "Stožár BTS Zlatníky", "soubor": "Stozar_BTS_Zlatniky_3,5M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "03:12", "akce": "nahrazeno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel a hřbitov", "soubor": "Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "03:12", "akce": "odstraněno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel a hřbitov – clean", "soubor": "Kostel_Levy_Hradec_a_hrbitov_4,7M_SH1_50k-iter_clean.sog"},
+  {"datum": "2026-11-26", "cas": "02:44", "akce": "přidáno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel – 319 kamer", "soubor": "Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog"},
+  {"datum": "2026-11-26", "cas": "02:44", "akce": "přidáno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel – clean", "soubor": "Kostel_Levy_Hradec_4,7M_30k-iter_clean.sog"},
+  {"datum": "2026-11-26", "cas": "02:44", "akce": "přidáno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel a hřbitov – clean", "soubor": "Kostel_Levy_Hradec_a_hrbitov_4,7M_SH1_50k-iter_clean.sog"},
+  {"datum": "2026-11-10", "cas": "22:18", "akce": "přidáno", "kategorie": "Domy nad Vltavským údolím", "nazev": "Listopad 2026 – high density", "soubor": "Domy_nad_Vltavskym_udolim_2026-11-07_6M_high_density.sog"},
+  {"datum": "2026-11-10", "cas": "12:00", "akce": "přidáno", "kategorie": "Domy nad Vltavským údolím", "nazev": "Listopad 2026 – low density", "soubor": "Domy_nad_Vltavskym_udolim_2026-11-07_2M_low_dendisty.sog"},
+  {"datum": "2026-11-10", "cas": "03:39", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "v2 low – jen kaple", "soubor": "Kaple_30k_0,36Mgaus_JEN kaple.sog"},
+  {"datum": "2026-11-10", "cas": "03:08", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "v2 low density – crop", "soubor": "Kaple_30k_1,2M_gaus_CROP.sog"},
+  {"datum": "2026-11-10", "cas": "03:08", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "v2 low density", "soubor": "Kaple_30k_1,9_Mgaus.sog"},
+  {"datum": "2026-11-08", "cas": "03:13", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice", "soubor": "Liblice_2026-10-07.sog"},
+  {"datum": "2026-11-08", "cas": "02:38", "akce": "přidáno", "kategorie": "Domy nad Vltavským údolím", "nazev": "Červenec 2026", "soubor": "Domy_nad_Vltavskym_udolim_2026-07-21_6-6M.sog"},
+  {"datum": "2026-11-08", "cas": "02:38", "akce": "přidáno", "kategorie": "Domy nad Vltavským údolím", "nazev": "Listopad 2026", "soubor": "Domy_nad_Vltavskym_udolim_2026-11-07_4-5M.sog"},
+  {"datum": "2026-11-08", "cas": "02:38", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "Plná verze", "soubor": "Kaple_Suchdol-2026_11_07-GausSplat_4M_SH2_cz.sog"}
+]

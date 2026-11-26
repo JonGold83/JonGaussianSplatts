@@ -44,6 +44,23 @@
   .switch input:checked + .track::after { transform:translateX(16px); background:var(--accent); }
   .switch input:focus-visible + .track { outline:2px solid var(--accent); outline-offset:2px; }
   .switch .state { color:var(--text); min-width:2.2em; }
+
+  /* historie */
+  .hist { margin-top:22px; }
+  .hist-toggle { background:none; border:0; padding:0; color:var(--muted); font:inherit; font-size:12px; letter-spacing:.08em; cursor:pointer; opacity:.7; }
+  .hist-toggle:hover, .hist-toggle[aria-expanded="true"] { opacity:1; color:var(--text); }
+  .hist-log { margin-top:12px; font-size:12px; color:var(--muted); border-top:1px solid var(--line); }
+  .hist-row { display:grid; grid-template-columns:auto auto minmax(0,1fr) minmax(0,1.2fr) minmax(0,2fr); gap:4px 12px; padding:6px 0; border-bottom:1px solid var(--line); align-items:baseline; }
+  .hist-row .when { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .hist-row .act { white-space:nowrap; }
+  .hist-row .act.add { color:var(--accent); }
+  .hist-row .hname { color:var(--text); }
+  .hist-row .file { overflow-wrap:anywhere; font-family:ui-monospace,Consolas,monospace; font-size:11px; }
+  .hist-row.removed .hname, .hist-row.removed .file { text-decoration:line-through; opacity:.7; }
+  @media (max-width:600px) {
+    .hist-row { grid-template-columns:auto 1fr; }
+    .hist-row .file { grid-column:1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -59,6 +76,10 @@
     </label>
   </div>
   <ul id="list"></ul>
+  <div class="hist">
+    <button class="hist-toggle" id="histToggle" aria-expanded="false" aria-controls="histLog">HISTORIE</button>
+    <div class="hist-log" id="histLog" hidden></div>
+  </div>
   <footer>(c)Jonas Goldamer · viewer <a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a></footer>
 </main>
 <script>
@@ -124,6 +145,32 @@
     list.querySelectorAll('a[data-f]').forEach(a => a.href = url(a.dataset.f, a.dataset.t));
     document.getElementById('skyState').textContent = skyInput.checked ? 'on' : 'off';
   };
+  // Historie změn: history.json (nejnovější nahoře), načte se až po rozbalení
+  const histToggle = document.getElementById('histToggle');
+  const histLog = document.getElementById('histLog');
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  const fmtDate = d => { const [y, m, day] = d.split('-'); return `${+day}. ${+m}. ${y}`; };
+  let histLoaded = false;
+  histToggle.addEventListener('click', async () => {
+    const open = histLog.hidden;
+    histLog.hidden = !open;
+    histToggle.setAttribute('aria-expanded', open);
+    if (!open || histLoaded) return;
+    try {
+      const rows = await (await fetch('history.json', { cache: 'no-cache' })).json();
+      histLog.innerHTML = rows.map(r => `<div class="hist-row${r.akce === 'odstraněno' ? ' removed' : ''}">
+        <span class="when">${esc(fmtDate(r.datum))} ${esc(r.cas)}</span>
+        <span class="act${r.akce === 'přidáno' ? ' add' : ''}">${esc(r.akce)}</span>
+        <span class="cat">${esc(r.kategorie)}</span>
+        <span class="hname">${esc(r.nazev)}</span>
+        <span class="file">${esc(r.soubor)}</span>
+      </div>`).join('');
+      histLoaded = true;
+    } catch (e) {
+      histLog.textContent = 'Historii se nepodařilo načíst.';
+    }
+  });
+
   skyInput.addEventListener('change', () => {
     try { localStorage.setItem('skybox', skyInput.checked ? '1' : '0'); } catch (e) {}
     refresh();
