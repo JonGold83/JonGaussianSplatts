@@ -1,4 +1,5 @@
 [
+  {"datum": "2026-11-26", "cas": "16:32", "akce": "odstraněno", "kategorie": "Liblice", "nazev": "Liblice", "soubor": "Liblice_2026-10-07.sog"},
   {"datum": "2026-11-26", "cas": "16:09", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice – low density", "soubor": "Liblice_LowDensity_0,7M_SH1_30k-iter.sog"},
   {"datum": "2026-11-26", "cas": "15:09", "akce": "přidáno", "kategorie": "Stožár BTS Zlatníky", "nazev": "Stožár BTS Zlatníky – low density", "soubor": "Stozar_BTS_Zlatniky_LowDensity_0,8M_SH1_30k-iter.sog"},
   {"datum": "2026-11-26", "cas": "12:58", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice – 3,3M", "soubor": "Liblice_3,3M_SH1_30k-iter.sog"},
