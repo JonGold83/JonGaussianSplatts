@@ -1,4 +1,5 @@
 [
+  {"datum": "2026-11-26", "cas": "22:17", "akce": "přidáno", "kategorie": "Rodinné domy", "nazev": "Klekle 2 – low density", "soubor": "Klekle2_LowDensity_0,9M_SH1_30k-iter.sog"},
   {"datum": "2026-11-26", "cas": "19:16", "akce": "přidáno", "kategorie": "Kostel Levý Hradec", "nazev": "Kostel – low density", "soubor": "Kostel_Levy_Hradec_LowDensity_1,8M_SH1_30k-iter.sog"},
   {"datum": "2026-11-26", "cas": "16:32", "akce": "odstraněno", "kategorie": "Liblice", "nazev": "Liblice", "soubor": "Liblice_2026-10-07.sog"},
   {"datum": "2026-11-26", "cas": "16:09", "akce": "přidáno", "kategorie": "Liblice", "nazev": "Liblice – low density", "soubor": "Liblice_LowDensity_0,7M_SH1_30k-iter.sog"},
