@@ -46,6 +46,11 @@
   // Skupina: { name, meta, variants: [[nazev, popis, soubor.sog], ...] }
   // Skupina s 1 variantou = primy odkaz bez rozbaleni
   const groups = [
+    { name: 'Kostel Levý Hradec', meta: 'Kostel sv. Klimenta a hřbitov', variants: [
+      ['Kostel a hřbitov – clean', '4,7M Gaussian · SH1 · 50k iter',             'Kostel_Levy_Hradec_a_hrbitov_4,7M_SH1_50k-iter_clean.sog'],
+      ['Kostel – clean',           '4,7M Gaussian · 30k iter',                   'Kostel_Levy_Hradec_4,7M_30k-iter_clean.sog'],
+      ['Kostel – 319 kamer',       '4,6M Gaussian · SH1 · 30k iter · 319 snímků', 'Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog'],
+    ]},
     { name: 'Kaple Suchdol', meta: '7. 11. 2026', variants: [
       ['Plná verze',          '4M Gaussian · SH2',    'Kaple_Suchdol-2026_11_07-GausSplat_4M_SH2_cz.sog'],
       ['v2 low density',         '1,9M Gaussian',        'Kaple_30k_1,9_Mgaus.sog'],
