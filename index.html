@@ -89,10 +89,8 @@
     { name: 'Rodinné domy', meta: 'Karel · Klekle 2 · Halouny', variants: [
       ['Karel',    '4,4M Gaussian · SH1 · 30k iter',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
       ['Karel – low density', '0,9M Gaussian · SH1 · 30k iter', 'Karel_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter · depth',   'Klekle2_B_depth_4,3M_SH1_30k-iter.sog'],
-      ['Klekle 2 – 4,3M', '4,3M Gaussian · SH1 · 30k iter',    'Klekle2_4,3M_SH1_30k-iter.sog'],
-      ['Klekle 2 – low density', '0,9M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Klekle 2 – low density 1,8M', '1,8M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
+      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter',           'Klekle2_4,3M_SH1_30k-iter.sog'],
+      ['Klekle 2 – low density', '1,8M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
       ['Halouny',  '4,5M Gaussian · SH1 · 30k iter',           'Halouny_Dum_4,5M_SH1_30k-iter.sog'],
       ['Halouny – low density', '0,9M Gaussian · SH1 · 30k iter', 'Halouny_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
@@ -139,12 +137,23 @@
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1)
       return `<li><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a></li>`;
-    return `<li><details>
+    return `<li><details data-g="${attr(g.name)}">
       <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} varianty</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f]) =>
         `<li><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a></li>`).join('')}</ul>
     </details></li>`;
   }).join('');
+
+  // Rozbalené skupiny si pamatuje sessionStorage, aby zůstaly otevřené po návratu z vieweru
+  let openGroups = [];
+  try { openGroups = JSON.parse(sessionStorage.getItem('openGroups') || '[]'); } catch (e) {}
+  list.querySelectorAll('details[data-g]').forEach(d => {
+    if (openGroups.includes(d.dataset.g)) d.open = true;
+    d.addEventListener('toggle', () => {
+      const names = [...list.querySelectorAll('details[data-g]')].filter(x => x.open).map(x => x.dataset.g);
+      try { sessionStorage.setItem('openGroups', JSON.stringify(names)); } catch (e) {}
+    });
+  });
 
   // Odkazy si pamatují soubor v data-f; přepínač jen přepíše href (rozbalené skupiny zůstanou otevřené)
   const refresh = () => {
