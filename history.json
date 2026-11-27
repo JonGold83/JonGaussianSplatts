@@ -1,4 +1,5 @@
 [
+  {"datum": "2026-11-27", "cas": "21:22", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "Kaple – low density", "soubor": "Kaple_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog"},
   {"datum": "2026-11-27", "cas": "19:22", "akce": "přidáno", "kategorie": "Kaple Suchdol", "nazev": "Kaple – 3,9M", "soubor": "Kaple_Suchdol_3,9M_SH1_30k-iter.sog"},
   {"datum": "2026-11-27", "cas": "18:22", "akce": "přidáno", "kategorie": "Stavby a deponie", "nazev": "Deponie Horoměřice – low density", "soubor": "Hromady_Horomerice_LowDensity_0,9M_SH1_30k-iter.sog"},
   {"datum": "2026-11-27", "cas": "16:32", "akce": "přidáno", "kategorie": "Stavby a deponie", "nazev": "Deponie Horoměřice", "soubor": "Hromady_Horomerice_4,5M_SH1_30k-iter.sog"},
