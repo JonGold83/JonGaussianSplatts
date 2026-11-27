@@ -30,6 +30,12 @@
   .sublist .item { padding:12px 16px; border-radius:10px; }
   .sublist .dot { width:7px; height:7px; box-shadow:none; opacity:.7; }
   .sublist .name { font-size:15px; font-weight:500; }
+  /* položka + alternativní odkaz do nového vieweru (viewer2/, SuperSplat Viewer) */
+  .pair { display:flex; gap:6px; align-items:stretch; }
+  .pair > .item:first-child { flex:1; min-width:0; }
+  .alt { flex:none; display:flex; align-items:center; justify-content:center; text-align:center; width:76px; padding:6px; font-size:11px; line-height:1.25; color:var(--muted); background:var(--card); border:1px solid var(--line); border-radius:10px; text-decoration:none; transition:border-color .15s, color .15s; }
+  .alt:hover { border-color:var(--accent); color:var(--accent); }
+  @media (max-width:520px) { .alt { width:58px; font-size:10px; } }
 
   footer { color:var(--muted); font-size:12px; margin-top:40px; }
   footer a { color:var(--muted); }
@@ -134,6 +140,11 @@
   const url = (f, t) => `splatviewer.html?content=${encodeURIComponent(f)}` +
     (t ? `&title=${encodeURIComponent(t)}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent(SKYBOX)}` : '');
+  // nový viewer v podsložce viewer2/: cesty k souborům jsou o úroveň výš
+  const url2 = (f, t) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
+    (t ? `&title=${encodeURIComponent(t)}` : '') +
+    (skyInput.checked ? `&skybox=${encodeURIComponent('../' + SKYBOX)}` : '');
+  const alt = (f, t) => `<a class="alt" data-v="2" data-f="${f}" data-t="${t}" title="Otevřít v novém vieweru (SuperSplat)">nový viewer</a>`;
   const attr = s => s.replace(/"/g, '&quot;');
   const row = (n, m, extra = '') =>
     `<span class="dot"></span><span><div class="name">${n}</div><div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
@@ -141,11 +152,11 @@
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1 && !g.collapse)
-      return `<li><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a></li>`;
+      return `<li class="pair"><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
     return `<li><details data-g="${attr(g.name)}">
       <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f]) =>
-        `<li><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a></li>`).join('')}</ul>
+        `<li class="pair"><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
     </details></li>`;
   }).join('');
 
@@ -162,7 +173,7 @@
 
   // Odkazy si pamatují soubor v data-f; přepínač jen přepíše href (rozbalené skupiny zůstanou otevřené)
   const refresh = () => {
-    list.querySelectorAll('a[data-f]').forEach(a => a.href = url(a.dataset.f, a.dataset.t));
+    list.querySelectorAll('a[data-f]').forEach(a => a.href = (a.dataset.v === '2' ? url2 : url)(a.dataset.f, a.dataset.t));
     document.getElementById('skyState').textContent = skyInput.checked ? 'on' : 'off';
   };
   // Historie změn: history.json (nejnovější nahoře), načte se až po rozbalení

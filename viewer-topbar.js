@@ -1,14 +1,18 @@
 // Horní lišta pro splatviewer.html: Zpět · název scény · přepínač nebe.
 // Do exportu z LichtFeld Studia se vkládá jediným řádkem před </body>:
 //   <script src="viewer-topbar.js"></script>
+// Pro viewer v podsložce (viewer2/) se přidá data-root="../": odkaz Zpět i nebe se berou
+// z kořene webu a pravidla pro canvas starého vieweru se nepoužijí (nový viewer má vlastní #stage).
 (() => {
+  const ROOT = document.currentScript?.dataset.root ?? '';
   const BAR = 48;                 // výška lišty v px
-  const SKYBOX = 'nebe_4k.jpg';   // stejná panorama jako v indexu
+  const SKYBOX = ROOT + 'nebe_4k.jpg';   // stejná panorama jako v indexu
   const KEY = 'skybox';           // sdílené s indexem (localStorage)
 
   const params = new URLSearchParams(location.search);
   const file = params.get('content') || '';
-  const title = params.get('title') || file.replace(/\.sog$/i, '').replace(/_/g, ' ');
+  const fileName = file.split('/').pop();
+  const title = params.get('title') || fileName.replace(/\.sog$/i, '').replace(/_/g, ' ');
   const skyOn = params.has('skybox');
 
   const css = `
@@ -34,12 +38,13 @@
     #topbar .switch input:focus-visible + .track { outline:2px solid #ffaf50; outline-offset:2px; }
     @media (max-width:520px) { #topbar .back .lbl, #topbar .switch .lbl, #topbar .title small { display:none; } }
 
+    html, body { height:100%; background:#000; }
+  ` + (ROOT ? '' : `
     /* scéna a UI vieweru začínají pod lištou (velikost renderu se bere z canvas.clientWidth/Height) */
     pc-app canvas { position:fixed; top:var(--topbar); left:0;
       width:100vw !important; height:calc(100% - var(--topbar)) !important; }
-    html, body { height:100%; background:#000; }
     #ui, #infoPanel { top:var(--topbar) !important; height:calc(100% - var(--topbar)) !important; }
-  `;
+  `);
   const style = document.createElement('style');
   style.textContent = css;
   document.head.appendChild(style);
@@ -48,11 +53,11 @@
   const bar = document.createElement('div');
   bar.id = 'topbar';
   bar.innerHTML = `
-    <a class="back" href="./" title="Zpět na seznam splatů">
+    <a class="back" href="${ROOT || './'}" title="Zpět na seznam splatů">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       <span class="lbl">Zpět</span>
     </a>
-    <div class="title"><b>${esc(title)}</b>${file ? `<small>${esc(file)}</small>` : ''}</div>
+    <div class="title"><b>${esc(title)}</b>${fileName ? `<small>${esc(fileName)}</small>` : ''}</div>
     <label class="switch" title="Zobrazení nebe">
       <span class="lbl">Nebe</span>
       <input type="checkbox" ${skyOn ? 'checked' : ''}>
