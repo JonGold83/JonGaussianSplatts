@@ -86,17 +86,6 @@
   // Skupina: { name, meta, variants: [[nazev, popis, soubor.sog], ...] }
   // Skupina s 1 variantou = primy odkaz bez rozbaleni
   const groups = [
-    { name: 'Hromady Horoměřice', meta: '4,5M Gaussian · SH1 · 30k iter', variants: [
-      ['Hromady Horoměřice', '4,5M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_4,5M_SH1_30k-iter.sog'],
-    ]},
-    { name: 'Rodinné domy', meta: 'Karel · Klekle 2 · Halouny', variants: [
-      ['Karel',    '4,4M Gaussian · SH1 · 30k iter',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
-      ['Karel – low density', '0,9M Gaussian · SH1 · 30k iter', 'Karel_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter',           'Klekle2_4,3M_SH1_30k-iter.sog'],
-      ['Klekle 2 – low density', '1,8M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
-      ['Halouny',  '4,5M Gaussian · SH1 · 30k iter',           'Halouny_Dum_4,5M_SH1_30k-iter.sog'],
-      ['Halouny – low density', '0,9M Gaussian · SH1 · 30k iter', 'Halouny_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
-    ]},
     { name: 'Kostel Levý Hradec', meta: 'Kostel sv. Klimenta a hřbitov', variants: [
       ['Kostel a hřbitov', '4,6M Gaussian · SH1 · 30k iter · 319 snímků', 'Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog'],
       ['Kostel',           '4,7M Gaussian · 30k iter',                   'Kostel_Levy_Hradec_4,7M_30k-iter_clean.sog'],
@@ -107,6 +96,17 @@
       ['v2 low density',         '1,9M Gaussian',        'Kaple_30k_1,9_Mgaus.sog'],
       ['v2 low density – crop',  '1,2M Gaussian',         'Kaple_30k_1,2M_gaus_CROP.sog'],
       ['v2 low – jen kaple',  '0,36M Gaussian',       'Kaple_30k_0,36Mgaus_JEN kaple.sog'],
+    ]},
+    { name: 'Stavby a deponie', meta: 'Deponie Horoměřice', collapse: true, variants: [
+      ['Deponie Horoměřice', '4,5M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_4,5M_SH1_30k-iter.sog'],
+    ]},
+    { name: 'Rodinné domy', meta: 'Karel · Klekle 2 · Halouny', variants: [
+      ['Karel',    '4,4M Gaussian · SH1 · 30k iter',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
+      ['Karel – low density', '0,9M Gaussian · SH1 · 30k iter', 'Karel_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
+      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter',           'Klekle2_4,3M_SH1_30k-iter.sog'],
+      ['Klekle 2 – low density', '1,8M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
+      ['Halouny',  '4,5M Gaussian · SH1 · 30k iter',           'Halouny_Dum_4,5M_SH1_30k-iter.sog'],
+      ['Halouny – low density', '0,9M Gaussian · SH1 · 30k iter', 'Halouny_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
     { name: 'Domy nad Vltavským údolím', meta: '2 termíny', variants: [
       ['Listopad 2026 – high density', '7. 11. 2026 · 6M Gaussian',            'Domy_nad_Vltavskym_udolim_2026-11-07_6M_high_density.sog'],
@@ -138,10 +138,10 @@
 
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
-    if (g.variants.length === 1)
+    if (g.variants.length === 1 && !g.collapse)
       return `<li><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a></li>`;
     return `<li><details data-g="${attr(g.name)}">
-      <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} varianty</span>`)}</summary>
+      <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f]) =>
         `<li><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a></li>`).join('')}</ul>
     </details></li>`;
