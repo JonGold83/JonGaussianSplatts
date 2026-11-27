@@ -92024,7 +92024,7 @@ var zhCNJson = {
 	"xr-hint.stalled": "没有反应？切换到其他标签页再切回来。"
 };
 
-// cestina doplnena pro JonGaussianSplatts
+// JonGaussianSplatts: cestina
 var csJson = {
 	"settings.performance-mode": "Úsporný režim",
 	"settings.quality": "Kvalita",
@@ -99221,7 +99221,7 @@ class Quality {
 // Annotated so the published declaration widens to `number`; without it the emitted type is
 // the literal `75`, which bakes the value into the api.
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-const DEFAULT_CAMERA_FOV = 85;
+const DEFAULT_CAMERA_FOV = 50; // JonGaussianSplatts: puvodne 85
 /**
  * Default post-processing settings, with every effect disabled.
  *
@@ -108033,7 +108033,7 @@ const createFigure8Track = (position, target, fov, size = 1, keys = 24, duration
  * @param duration - The duration of the animation in seconds.
  * @returns - The animation track object containing position and target keyframes.
  */
-// JonGaussianSplatts: pomalejsi oblet jako v puvodnim vieweru (24 klicu, 60 s na otocku)
+// JonGaussianSplatts: pomalejsi oblet (24 klicu, 60 s na otocku)
 const createRotateTrack = (position, target, fov, keys = 24, duration = 60) => {
     const times = new Array(keys).fill(0).map((_, i) => (i / keys) * duration);
     const positions = [];
@@ -109877,6 +109877,12 @@ const createCamera = (position, target, fov) => {
     result.fov = fov;
     return result;
 };
+// JonGaussianSplatts: uvodni pohled a Obnovit kameru – blize a vic shora (jako puvodni viewer)
+const createStartCamera = (bbox, fov) => {
+    const sceneSize = bbox.halfExtents.length();
+    const distance = sceneSize / Math.sin((fov / 180) * Math.PI * 0.8);
+    return createCamera(new Vec3(2, 3, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);
+};
 const createFrameCamera = (bbox, fov) => {
     const sceneSize = bbox.halfExtents.length();
     const distance = sceneSize / Math.sin((fov / 180) * Math.PI * 0.5);
@@ -109919,7 +109925,7 @@ class CameraManager {
         const frameCamera = createFrameCamera(bbox, defaultFov);
         const resetCamera = camera0
             ? createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov)
-            : frameCamera;
+            : createStartCamera(bbox, defaultFov);
         const getAnimTrack = (initial, isObjectExperience) => {
             const { animTracks } = settings;
             // extract the camera animation track from settings

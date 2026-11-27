@@ -1,0 +1,11 @@
+        <!-- JonGaussianSplatts: horni lista (Zpet, nazev, nebe), viewer pod ni a patka s autorem -->
+        <div id="stage" style="position:fixed; top:48px; left:0; right:0; bottom:0;"></div>
+        <script src="../viewer-topbar.js" data-root="../"></script>
+        <style>
+            #credit { position:fixed; left:50%; bottom:max(10px, env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:5;
+                font:12px system-ui,-apple-system,"Segoe UI",sans-serif; color:rgba(255,255,255,.55); text-decoration:none;
+                white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,.8); }
+            #credit:hover { color:#ffaf50; }
+            @media (max-width:520px) { #credit { bottom:auto; top:56px; font-size:11px; } }
+        </style>
+        <a id="credit" href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">Made with LichtFeld Studio by Jonas Goldamer</a>

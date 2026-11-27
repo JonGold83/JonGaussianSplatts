@@ -138,10 +138,9 @@
         </script>
     </head>
     <body>
-        <!-- JonGaussianSplatts: horni lista (Zpet, nazev, nebe) a viewer pod ni -->
+        <!-- JonGaussianSplatts: horni lista (Zpet, nazev, nebe), viewer pod ni a patka s autorem -->
         <div id="stage" style="position:fixed; top:48px; left:0; right:0; bottom:0;"></div>
         <script src="../viewer-topbar.js" data-root="../"></script>
-        <!-- JonGaussianSplatts: patka s autorem -->
         <style>
             #credit { position:fixed; left:50%; bottom:max(10px, env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:5;
                 font:12px system-ui,-apple-system,"Segoe UI",sans-serif; color:rgba(255,255,255,.55); text-decoration:none;
@@ -156,8 +155,7 @@
 
             const { options, settings } = window.sse;
 
-            // JonGaussianSplatts: napoveda (panel ovladani) se otevre pri kazdem nacteni,
-            // i kdyz ji navstevnik minule zavrel
+            // JonGaussianSplatts: napoveda (panel ovladani) se otevre pri kazdem nacteni
             try { localStorage.removeItem('controlsPanelOpen'); } catch (e) {}
 
             // the viewer builds its own subtree (canvas, ui, icons) inside the container; the
