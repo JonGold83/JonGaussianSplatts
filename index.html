@@ -30,7 +30,7 @@
   .sublist .item { padding:12px 16px; border-radius:10px; }
   .sublist .dot { width:7px; height:7px; box-shadow:none; opacity:.7; }
   .sublist .name { font-size:15px; font-weight:500; }
-  /* položka + alternativní odkaz do nového vieweru (viewer2/, SuperSplat Viewer) */
+  /* položka (nový viewer, viewer2/ SuperSplat) + tlačítko do staršího vieweru (LichtFeld) */
   .pair { display:flex; gap:6px; align-items:stretch; }
   .pair > .item:first-child { flex:1; min-width:0; }
   .alt { flex:none; display:flex; align-items:center; justify-content:center; text-align:center; width:76px; padding:6px; font-size:11px; line-height:1.25; color:var(--muted); background:var(--card); border:1px solid var(--line); border-radius:10px; text-decoration:none; transition:border-color .15s, color .15s; }
@@ -86,7 +86,7 @@
     <button class="hist-toggle" id="histToggle" aria-expanded="false" aria-controls="histLog">HISTORIE</button>
     <div class="hist-log" id="histLog" hidden></div>
   </div>
-  <footer>(c)Jonas Goldamer · viewer <a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a></footer>
+  <footer>(c)Jonas Goldamer · viewer <a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">SuperSplat</a> · starší viewer <a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a></footer>
 </main>
 <script>
   // Skupina: { name, meta, variants: [[nazev, popis, soubor.sog], ...] }
@@ -109,16 +109,16 @@
       ['Stožár BTS Klecany', '4,4M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_4,4M_SH1_30k-iter.sog'],
       ['Stožár BTS Klecany – low density', '0,9M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
-    { name: 'Hřbitov Suchdol', meta: 'Plná verze · low density', minpitch: 30, variants: [
+    { name: 'Hřbitov Suchdol', meta: 'Plná verze · low density', nadir: true, variants: [
       ['Hřbitov Suchdol', '4,0M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_4,0M_SH1_30k-iter.sog'],
       ['Hřbitov Suchdol – low density', '0,8M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
     ]},
     { name: 'Stavby a deponie', meta: 'Deponie Horoměřice · Stavba školy · Stavba Klecany 11', collapse: true, variants: [
       ['Deponie Horoměřice', '4,5M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_4,5M_SH1_30k-iter.sog'],
       ['Deponie Horoměřice – low density', '0,9M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Stavba školy', '4,0M Gaussian · SH1 · 30k iter', 'Stavba_Skola_4,0M_SH1_30k-iter.sog'],
-      ['Stavba školy – low density', '0,8M Gaussian · SH1 · 30k iter', 'Stavba_Skola_LowDensity_0,8M_SH1_30k-iter.sog'],
-      ['Stavba Klecany 11', '4,1M Gaussian · SH1 · 30k iter', 'Stavba_Klecany11_4,1M_SH1_30k-iter.sog'],
+      ['Stavba školy', '4,0M Gaussian · SH1 · 30k iter', 'Stavba_Skola_4,0M_SH1_30k-iter.sog', { nadir: true }],
+      ['Stavba školy – low density', '0,8M Gaussian · SH1 · 30k iter', 'Stavba_Skola_LowDensity_0,8M_SH1_30k-iter.sog', { nadir: true }],
+      ['Stavba Klecany 11', '4,1M Gaussian · SH1 · 30k iter', 'Stavba_Klecany11_4,1M_SH1_30k-iter.sog', { nadir: true }],
     ]},
     { name: 'Rodinné domy', meta: 'Karel · Klekle 2 · Halouny', variants: [
       ['Karel',    '4,4M Gaussian · SH1 · 30k iter',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
@@ -153,11 +153,16 @@
     (t ? `&title=${encodeURIComponent(t)}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent(SKYBOX)}` : '');
   // nový viewer v podsložce viewer2/: cesty k souborům jsou o úroveň výš
-  // minpitch (u skupiny): kamera v novém vieweru hledí vždy aspoň tolik stupňů dolů (modely jen z nadirových fotek)
+  // minpitch: kamera v novém vieweru hledí vždy aspoň tolik stupňů dolů pod horizont.
+  // Všechny modely 15° (ať se nekouká odspodu); modely jen z nadirových fotek (nadir: true
+  // u skupiny nebo { nadir: true } jako 4. položka varianty) 55°.
+  const MINPITCH = 15, MINPITCH_NADIR = 55;
+  const mpOf = (g, opt) => ((opt && opt.nadir) || g.nadir) ? MINPITCH_NADIR : MINPITCH;
   const url2 = (f, t, mp) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
     (t ? `&title=${encodeURIComponent(t)}` : '') + (mp ? `&minpitch=${mp}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent('../' + SKYBOX)}` : '');
-  const alt = (f, t, mp) => `<a class="alt" data-v="2" data-f="${f}" data-t="${t}"${mp ? ` data-mp="${mp}"` : ''} title="Otevřít v novém vieweru (SuperSplat)">nový viewer</a>`;
+  // hlavní odkaz = nový viewer (SuperSplat), tlačítko vpravo = starší viewer (LichtFeld)
+  const alt = (f, t) => `<a class="alt" data-v="1" data-f="${f}" data-t="${t}" title="Otevřít ve starším vieweru (LichtFeld Studio)">starší viewer</a>`;
   const attr = s => s.replace(/"/g, '&quot;');
   const row = (n, m, extra = '') =>
     `<span class="dot"></span><span><div class="name">${n}</div><div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
@@ -165,11 +170,11 @@
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1 && !g.collapse)
-      return `<li class="pair"><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name), g.minpitch)}</li>`;
+      return `<li class="pair"><a class="item" data-v="2" data-mp="${mpOf(g, g.variants[0][3])}" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
     return `<li><details data-g="${attr(g.name)}">
       <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
-      <ul class="sublist">${g.variants.map(([n, m, f]) =>
-        `<li class="pair"><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n), g.minpitch)}</li>`).join('')}</ul>
+      <ul class="sublist">${g.variants.map(([n, m, f, opt]) =>
+        `<li class="pair"><a class="item" data-v="2" data-mp="${mpOf(g, opt)}" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
     </details></li>`;
   }).join('');
 
