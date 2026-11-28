@@ -8,7 +8,7 @@
   :root { --bg:#0e0f11; --card:#17191c; --line:#26292e; --text:#e6e3e0; --muted:#8a8f96; --accent:#ffaf50; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; padding:56px 16px; }
-  main { max-width:720px; margin:0 auto; }
+  main { max-width:720px; margin:0 auto; position:relative; }
   h1 { font-size:28px; font-weight:650; letter-spacing:-.01em; }
   .sub { color:var(--muted); margin:6px 0 36px; font-size:15px; }
   ul { list-style:none; display:grid; gap:10px; }
@@ -72,7 +72,14 @@
   footer a { color:var(--muted); }
 
   /* prepinac nebe */
-  .toolbar { display:flex; justify-content:flex-end; margin:-20px 0 12px; }
+  .toolbar { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin:-20px 0 12px; }
+  /* přepínač jazyka CZ | EN */
+  .lang { position:absolute; top:-36px; right:0; display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .lang button { background:none; border:0; padding:4px 9px; font:inherit; font-size:12px; letter-spacing:.06em; color:var(--muted); cursor:pointer; transition:color .15s, background .15s; }
+  .lang button + button { border-left:1px solid var(--line); }
+  .lang button:hover { color:var(--text); }
+  .lang button[aria-pressed="true"] { color:var(--bg); background:var(--accent); }
+  .lang button:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
   .switch { display:inline-flex; align-items:center; gap:10px; cursor:pointer; color:var(--muted); font-size:14px; user-select:none; }
   .switch input { position:absolute; opacity:0; width:0; height:0; }
   .track { width:38px; height:22px; border-radius:11px; background:var(--line); position:relative; transition:background .15s; flex:none; }
@@ -102,11 +109,12 @@
 </head>
 <body>
 <main>
-  <h1>Gaussian Splaty z dronu</h1>
-  <p class="sub">3D modely staveb a krajiny z leteckých snímků. Rekonstrukce v RealityScanu, trénování splatů v LichtFeld Studiu.</p>
+  <div class="lang" id="langSwitch" role="group"><button type="button" data-lang="cs">CZ</button><button type="button" data-lang="en">EN</button></div>
+  <h1 id="h1">Gaussian Splaty z dronu</h1>
+  <p class="sub" id="sub">3D modely staveb a krajiny z leteckých snímků. Rekonstrukce v RealityScanu, trénování splatů v LichtFeld Studiu.</p>
   <div class="toolbar">
     <label class="switch">
-      <span>Zobrazení nebe</span>
+      <span id="skyLabel">Zobrazení nebe</span>
       <input type="checkbox" id="sky">
       <span class="track"></span>
       <span class="state" id="skyState">off</span>
@@ -117,7 +125,7 @@
     <button class="hist-toggle" id="histToggle" aria-expanded="false" aria-controls="histLog">HISTORIE</button>
     <div class="hist-log" id="histLog" hidden></div>
   </div>
-  <footer>(c)Jonas Goldamer · viewer <a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">SuperSplat</a> · starší viewer <a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a></footer>
+  <footer id="footer">(c)Jonas Goldamer · viewer <a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">SuperSplat</a> · starší viewer <a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a></footer>
 </main>
 <script>
   // Skupina: { name, meta, variants: [[nazev, popis, soubor.sog], ...] }
@@ -176,13 +184,112 @@
     ]},
   ];
 
+  // ---------- Jazyk (CZ / EN) ----------
+  // Pořadí: ?lang= v adrese > ruční volba (localStorage 'lang') > jazyk prohlížeče (cs/sk = CZ, jinak EN)
+  const LANGS = ['cs', 'en'];
+  const pickLang = () => {
+    const p = new URLSearchParams(location.search).get('lang');
+    if (LANGS.includes(p)) return p;
+    try { const s = localStorage.getItem('lang'); if (LANGS.includes(s)) return s; } catch (e) {}
+    const nav = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || '']);
+    return nav.some(l => /^(cs|sk)\b/i.test(l)) ? 'cs' : 'en';
+  };
+  let lang = pickLang();
+
+  // Texty stránky
+  const T = {
+    cs: {
+      docTitle: 'Gaussian Splaty z dronu – Jonas Goldamer',
+      h1: 'Gaussian Splaty z dronu',
+      sub: '3D modely staveb a krajiny z leteckých snímků. Rekonstrukce v RealityScanu, trénování splatů v LichtFeld Studiu.',
+      sky: 'Zobrazení nebe',
+      langTitle: 'Jazyk / Language',
+      hist: 'HISTORIE',
+      histErr: 'Historii se nepodařilo načíst.',
+      footer: '(c)Jonas Goldamer · viewer {ss} · starší viewer {lf}',
+      openNew: v => `Otevřít model v prohlížeči (SuperSplat Viewer ${v})`,
+      openOld: 'Otevřít model ve starším prohlížeči (LichtFeld Studio)',
+      oldBtn: 'starší<br>viewer',
+      nadir: d => `Nadirový model: snímaný jen shora, proto kamera nejde sklopit níž než ${d}° pod horizont.`,
+      badge: 'nové',
+      newOne: span => `Model nově nahraný nebo aktualizovaný během posledních ${span}`,
+      newAny: span => `Skupina obsahuje model nově nahraný nebo aktualizovaný během posledních ${span}`,
+      hours: h => h % 24 ? `${h} hodin` : h === 24 ? '24 hodin' : `${h / 24} dní`,
+      count: n => `${n} ${n === 1 ? 'varianta' : n < 5 ? 'varianty' : 'variant'}`,
+      acts: { 'přidáno': 'přidáno', 'nahrazeno': 'nahrazeno', 'odstraněno': 'odstraněno' },
+      date: d => { const [y, m, day] = d.split('-'); return `${+day}. ${+m}. ${y}`; },
+    },
+    en: {
+      docTitle: 'Drone Gaussian Splats – Jonas Goldamer',
+      h1: 'Drone Gaussian Splats',
+      sub: '3D models of buildings and landscapes from aerial photos. Reconstruction in RealityScan, splat training in LichtFeld Studio.',
+      sky: 'Sky background',
+      langTitle: 'Jazyk / Language',
+      hist: 'HISTORY',
+      histErr: 'Could not load the history.',
+      footer: '(c)Jonas Goldamer · viewer {ss} · legacy viewer {lf}',
+      openNew: v => `Open the model in the viewer (SuperSplat Viewer ${v})`,
+      openOld: 'Open the model in the legacy viewer (LichtFeld Studio)',
+      oldBtn: 'legacy<br>viewer',
+      nadir: d => `Nadir model: captured from above only, so the camera cannot tilt lower than ${d}° below the horizon.`,
+      badge: 'new',
+      newOne: span => `Model added or updated in the last ${span}`,
+      newAny: span => `This group contains a model added or updated in the last ${span}`,
+      hours: h => h % 24 ? `${h} hours` : h === 24 ? '24 hours' : `${h / 24} days`,
+      count: n => `${n} ${n === 1 ? 'variant' : 'variants'}`,
+      acts: { 'přidáno': 'added', 'nahrazeno': 'replaced', 'odstraněno': 'removed' },
+      date: d => { const [y, m, day] = d.split('-'); return `${+day} ${MONTHS_EN[+m - 1]} ${y}`; },
+    },
+  };
+  const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Anglické názvy: celé texty nebo jejich části oddělené „ – “ a „ · “ (český text = klíč).
+  // Co ve slovníku není, zůstane česky; čísla (4,6M), data (7. 11. 2026) a „snímků“ se převedou samy.
+  // Nová položka = doplnit sem anglický název (vlastní jména míst se nepřekládají).
+  const EN = {
+    // skupiny a jejich popisky
+    'Kostel Levý Hradec': 'Church of St. Clement, Levý Hradec',
+    'Kostel sv. Klimenta a hřbitov': 'Church of St. Clement and cemetery',
+    'Kaple Suchdol': 'Chapel, Suchdol',
+    'Stožár BTS Klecany': 'BTS tower, Klecany',
+    'Hřbitov Suchdol': 'Cemetery, Suchdol',
+    'Stavby a deponie': 'Construction sites & spoil heaps',
+    'Rodinné domy': 'Family houses',
+    'Domy nad Vltavským údolím': 'Domy nad Vltavským údolím',
+    '2 termíny': 'Real estate project · 2 survey dates',
+    'Stožár BTS Zlatníky': 'BTS tower, Zlatníky',
+    'Stožáry týden před odstřelem': 'Towers one week before demolition',
+    'Plná verze': 'Full version',
+    // varianty
+    'Kostel a hřbitov': 'Church and cemetery',
+    'Kostel': 'Church',
+    'Kaple': 'Chapel',
+    'jen kaple': 'chapel only',
+    'Deponie Horoměřice': 'Spoil heaps, Horoměřice',
+    'Stavba školy': 'School construction site',
+    'Stavba Klecany 11': 'Construction site, Klecany 11',
+    'Listopad 2026': 'November 2026',
+    'Červenec 2026': 'July 2026',
+  };
+  const enAuto = s => s
+    .replace(/\b(\d{1,2})\. ?(\d{1,2})\. ?(\d{4})\b/g, (_, d, m, y) => `${+d} ${MONTHS_EN[+m - 1]} ${y}`)
+    .replace(/(\d),(\d)/g, '$1.$2')
+    .replace(/(\d+) snímků/g, '$1 photos');
+  const tr = s => {
+    if (lang === 'cs' || s == null) return s;
+    if (EN[s] !== undefined) return EN[s];
+    return s.split(/( – | · )/).map((part, i) => i % 2 ? part : (EN[part] ?? enAuto(part))).join('');
+  };
+  const t = () => T[lang];
+
+  // ---------- Odkazy do viewerů ----------
   // Panorama oblohy pro pozadí vieweru; přepínač „Zobrazení nebe“ ji zapíná/vypíná (vypnuto = černé pozadí)
   const SKYBOX = 'nebe_4k.jpg';
   const skyInput = document.getElementById('sky');
   try { const s = localStorage.getItem('skybox'); if (s !== null) skyInput.checked = s === '1'; } catch (e) {}
-  // title = název zobrazený v horní liště vieweru (viewer-topbar.js)
-  const url = (f, t) => `splatviewer.html?content=${encodeURIComponent(f)}` +
-    (t ? `&title=${encodeURIComponent(t)}` : '') +
+  // title = název zobrazený v horní liště vieweru (viewer-topbar.js), lang = jazyk lišty a vieweru
+  const url = (f, ti) => `splatviewer.html?content=${encodeURIComponent(f)}` +
+    (ti ? `&title=${encodeURIComponent(ti)}` : '') + `&lang=${lang}` +
     (skyInput.checked ? `&skybox=${encodeURIComponent(SKYBOX)}` : '');
   // nový viewer v podsložce viewer2/: cesty k souborům jsou o úroveň výš
   // minpitch: kamera v novém vieweru hledí vždy aspoň tolik stupňů dolů pod horizont.
@@ -190,114 +297,143 @@
   // u skupiny nebo { nadir: true } jako 4. položka varianty) 55°.
   const MINPITCH = 15, MINPITCH_NADIR = 55;
   const mpOf = (g, opt) => ((opt && opt.nadir) || g.nadir) ? MINPITCH_NADIR : MINPITCH;
-  const url2 = (f, t, mp) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
-    (t ? `&title=${encodeURIComponent(t)}` : '') + (mp ? `&minpitch=${mp}` : '') +
+  const url2 = (f, ti, mp) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
+    (ti ? `&title=${encodeURIComponent(ti)}` : '') + (mp ? `&minpitch=${mp}` : '') + `&lang=${lang}` +
     (skyInput.checked ? `&skybox=${encodeURIComponent('../' + SKYBOX)}` : '');
   // hlavní odkaz = nový viewer (SuperSplat), tlačítko vpravo = starší viewer (LichtFeld)
   const VIEWER2_VERSION = '1.44.0'; // při přechodu na novou verzi vieweru přepsat
-  const NEW_TITLE = `Otevřít model v prohlížeči (SuperSplat Viewer ${VIEWER2_VERSION})`;
-  const alt = (f, t) => `<a class="alt" data-v="1" data-f="${f}" data-t="${t}" title="Otevřít model ve starším prohlížeči (LichtFeld Studio)">starší<br>viewer</a>`;
-  const attr = s => s.replace(/"/g, '&quot;');
+  const attr = s => String(s).replace(/"/g, '&quot;');
+  const alt = (f, ti) => `<a class="alt" data-v="1" data-f="${f}" data-t="${ti}" title="${attr(t().openOld)}">${t().oldBtn}</a>`;
   // náhled modelu: thumbs/<soubor>.jpg (barevný 4:1, první snímek úvodní animace); chybějící obrázek se prostě nezobrazí
   const thumbUrl = f => `thumbs/${encodeURIComponent(f.replace(/\.sog$/, '.jpg'))}`;
   const isNadir = (g, opt) => !!((opt && opt.nadir) || g.nadir);
-  const NADIR_ICON = `<span class="nadir" title="Nadirový model: snímaný jen shora, proto kamera nejde sklopit níž než ${MINPITCH_NADIR}° pod horizont."><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5v6M5.5 5 8 7.5 10.5 5"/><path d="M2 11.5 8 9l6 2.5L8 14z"/></svg></span>`;
+  const nadirIcon = () => `<span class="nadir" title="${attr(t().nadir(MINPITCH_NADIR))}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5v6M5.5 5 8 7.5 10.5 5"/><path d="M2 11.5 8 9l6 2.5L8 14z"/></svg></span>`;
   // f = soubor (náhled, velikost, „nové“), nadir = ikona
   const gbg = f => f ? `<span class="gbg" style="background-image:url('${thumbUrl(f)}')"></span>` : '';
   const row = (n, m, extra = '', f = '', nadir = false) =>
-    `${gbg(f)}<span class="dot"></span><span><div class="name">${n}${nadir ? NADIR_ICON : ''}${f ? `<span class="new" data-new="${f}" hidden>nové</span>` : ''}</div>` +
+    `${gbg(f)}<span class="dot"></span><span><div class="name">${n}${nadir ? nadirIcon() : ''}${f ? `<span class="new" data-new="${f}" hidden>${t().badge}</span>` : ''}</div>` +
     `<div class="meta">${m}${f ? `<span class="size" data-size="${f}"></span>` : ''}</div></span>${extra}<span class="go">→</span>`;
 
+  // ---------- Seznam modelů ----------
   const list = document.getElementById('list');
-  list.innerHTML = groups.map(g => {
-    if (g.variants.length === 1 && !g.collapse)
-      return `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, g.variants[0][3])}" title="${NEW_TITLE}" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta, '', g.variants[0][2], isNadir(g, g.variants[0][3]))}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
-    const bgFile = g.variants[0][2];
-    const files = g.variants.map(v => v[2]).join('|');
-    return `<li><details data-g="${attr(g.name)}">
-      <summary class="item">${gbg(bgFile)}${row(g.name + `<span class="new" data-new-any="${attr(files)}" hidden>nové</span>`, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
-      <ul class="sublist">${g.variants.map(([n, m, f, opt]) =>
-        `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, opt)}" title="${NEW_TITLE}" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m, '', f, isNadir(g, opt))}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
-    </details></li>`;
-  }).join('');
-
-  // Velikost souborů: HEAD požadavek (Content-Length), u skupin až po rozbalení
+  // Rozbalené skupiny si pamatuje sessionStorage, aby zůstaly otevřené po návratu z vieweru (klíč = český název)
+  let openGroups = [];
+  try { openGroups = JSON.parse(sessionStorage.getItem('openGroups') || '[]'); } catch (e) {}
+  const sizes = new Map(); // soubor -> bajty (HEAD), ať se při přepnutí jazyka nenačítají znovu
   const fmtSize = b => b >= 1e6 ? `${Math.round(b / 1e6)} MB` : `${Math.max(1, Math.round(b / 1e3))} kB`;
   const loadSizes = root => root.querySelectorAll('.size[data-size]:empty').forEach(async el => {
+    const f = el.dataset.size;
     try {
-      const len = +(await fetch(el.dataset.size, { method: 'HEAD' })).headers.get('Content-Length');
+      if (!sizes.has(f)) sizes.set(f, fetch(f, { method: 'HEAD' }).then(r => +r.headers.get('Content-Length')));
+      const len = await sizes.get(f);
       if (len) el.textContent = ` · ${fmtSize(len)}`;
     } catch (e) {}
-  });
-  list.querySelectorAll(':scope > li.pair').forEach(loadSizes);
-  list.querySelectorAll('details[data-g]').forEach(d => {
-    if (d.open) loadSizes(d);
-    d.addEventListener('toggle', () => { if (d.open) loadSizes(d); });
   });
 
   // Štítek „nové“: soubory přidané/nahrazené za posledních NEW_HOURS hodin (history.json)
   const NEW_HOURS = 24;
   let historyRows = null;
   const loadHistory = () => historyRows ??= fetch('history.json', { cache: 'no-cache' }).then(r => r.json());
-  loadHistory().then(rows => {
+  const markNew = () => loadHistory().then(rows => {
     const since = Date.now() - NEW_HOURS * 36e5;
     const fresh = new Set(rows.filter(r => (r.akce === 'přidáno' || r.akce === 'nahrazeno') &&
       new Date(`${r.datum}T${r.cas || '00:00'}`).getTime() >= since).map(r => r.soubor));
-    const span = NEW_HOURS % 24 ? `${NEW_HOURS} hodin` : NEW_HOURS === 24 ? '24 hodin' : `${NEW_HOURS / 24} dní`;
-    list.querySelectorAll('.new').forEach(el => el.title = el.dataset.newAny
-      ? `Skupina obsahuje model nově nahraný nebo aktualizovaný během posledních ${span}`
-      : `Model nově nahraný nebo aktualizovaný během posledních ${span}`);
+    const span = t().hours(NEW_HOURS);
+    list.querySelectorAll('.new').forEach(el => el.title = el.dataset.newAny ? t().newAny(span) : t().newOne(span));
     list.querySelectorAll('[data-new]').forEach(el => el.hidden = !fresh.has(el.dataset.new));
     list.querySelectorAll('[data-new-any]').forEach(el => el.hidden = !el.dataset.newAny.split('|').some(f => fresh.has(f)));
   }).catch(() => {});
 
-  // Rozbalené skupiny si pamatuje sessionStorage, aby zůstaly otevřené po návratu z vieweru
-  let openGroups = [];
-  try { openGroups = JSON.parse(sessionStorage.getItem('openGroups') || '[]'); } catch (e) {}
-  list.querySelectorAll('details[data-g]').forEach(d => {
-    if (openGroups.includes(d.dataset.g)) d.open = true;
-    d.addEventListener('toggle', () => {
-      const names = [...list.querySelectorAll('details[data-g]')].filter(x => x.open).map(x => x.dataset.g);
-      try { sessionStorage.setItem('openGroups', JSON.stringify(names)); } catch (e) {}
+  const renderList = () => {
+    const newTitle = attr(t().openNew(VIEWER2_VERSION));
+    list.innerHTML = groups.map(g => {
+      const gName = tr(g.name), gMeta = tr(g.meta);
+      if (g.variants.length === 1 && !g.collapse)
+        return `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, g.variants[0][3])}" title="${newTitle}" data-f="${g.variants[0][2]}" data-t="${attr(gName)}">${row(gName, gMeta, '', g.variants[0][2], isNadir(g, g.variants[0][3]))}</a>${alt(g.variants[0][2], attr(gName))}</li>`;
+      const files = g.variants.map(v => v[2]).join('|');
+      return `<li><details data-g="${attr(g.name)}"${openGroups.includes(g.name) ? ' open' : ''}>
+        <summary class="item">${gbg(g.variants[0][2])}${row(gName + `<span class="new" data-new-any="${attr(files)}" hidden>${t().badge}</span>`, gMeta, `<span class="count">${t().count(g.variants.length)}</span>`)}</summary>
+        <ul class="sublist">${g.variants.map(([n, m, f, opt]) => {
+          const vName = tr(n), full = `${gName} – ${vName}`;
+          return `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, opt)}" title="${newTitle}" data-f="${f}" data-t="${attr(full)}">${row(vName, tr(m), '', f, isNadir(g, opt))}</a>${alt(f, attr(full))}</li>`;
+        }).join('')}</ul>
+      </details></li>`;
+    }).join('');
+    list.querySelectorAll(':scope > li.pair').forEach(loadSizes);
+    list.querySelectorAll('details[data-g]').forEach(d => {
+      if (d.open) loadSizes(d);
+      d.addEventListener('toggle', () => {
+        if (d.open) loadSizes(d);
+        openGroups = [...list.querySelectorAll('details[data-g]')].filter(x => x.open).map(x => x.dataset.g);
+        try { sessionStorage.setItem('openGroups', JSON.stringify(openGroups)); } catch (e) {}
+      });
     });
-  });
+    markNew();
+    refresh();
+  };
 
   // Odkazy si pamatují soubor v data-f; přepínač jen přepíše href (rozbalené skupiny zůstanou otevřené)
   const refresh = () => {
     list.querySelectorAll('a[data-f]').forEach(a => a.href = (a.dataset.v === '2' ? url2 : url)(a.dataset.f, a.dataset.t, a.dataset.mp));
     document.getElementById('skyState').textContent = skyInput.checked ? 'on' : 'off';
   };
-  // Historie změn: history.json (nejnovější nahoře), načte se až po rozbalení
+
+  // ---------- Historie změn: history.json (nejnovější nahoře), načte se až po rozbalení ----------
   const histToggle = document.getElementById('histToggle');
   const histLog = document.getElementById('histLog');
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
-  const fmtDate = d => { const [y, m, day] = d.split('-'); return `${+day}. ${+m}. ${y}`; };
-  let histLoaded = false;
-  histToggle.addEventListener('click', async () => {
-    const open = histLog.hidden;
-    histLog.hidden = !open;
-    histToggle.setAttribute('aria-expanded', open);
-    if (!open || histLoaded) return;
+  const renderHistory = async () => {
     try {
       const rows = await loadHistory();
       histLog.innerHTML = rows.map(r => `<div class="hist-row${r.akce === 'odstraněno' ? ' removed' : ''}">
-        <span class="when">${esc(fmtDate(r.datum))} ${esc(r.cas)}</span>
-        <span class="act${r.akce === 'přidáno' ? ' add' : ''}">${esc(r.akce)}</span>
-        <span class="cat">${esc(r.kategorie)}</span>
-        <span class="hname">${esc(r.nazev)}</span>
+        <span class="when">${esc(t().date(r.datum))} ${esc(r.cas)}</span>
+        <span class="act${r.akce === 'přidáno' ? ' add' : ''}">${esc(t().acts[r.akce] ?? r.akce)}</span>
+        <span class="cat">${esc(tr(r.kategorie))}</span>
+        <span class="hname">${esc(tr(r.nazev))}</span>
         <span class="file">${esc(r.soubor)}</span>
       </div>`).join('');
-      histLoaded = true;
     } catch (e) {
-      histLog.textContent = 'Historii se nepodařilo načíst.';
+      histLog.textContent = t().histErr;
     }
+  };
+  histToggle.addEventListener('click', () => {
+    const open = histLog.hidden;
+    histLog.hidden = !open;
+    histToggle.setAttribute('aria-expanded', open);
+    if (open) renderHistory();
   });
+
+  // ---------- Texty stránky + přepínač jazyka ----------
+  const applyLang = () => {
+    document.documentElement.lang = lang;
+    document.title = t().docTitle;
+    document.getElementById('h1').textContent = t().h1;
+    document.getElementById('sub').textContent = t().sub;
+    document.getElementById('skyLabel').textContent = t().sky;
+    histToggle.textContent = t().hist;
+    document.getElementById('footer').innerHTML = t().footer
+      .replace('{ss}', '<a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">SuperSplat</a>')
+      .replace('{lf}', '<a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">LichtFeld Studio</a>');
+    document.querySelectorAll('#langSwitch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+    renderList();
+    if (!histLog.hidden) renderHistory();
+  };
+  document.getElementById('langSwitch').title = T.cs.langTitle;
+  document.querySelectorAll('#langSwitch button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    try { localStorage.setItem('lang', lang); } catch (e) {}
+    // ?lang= v adrese by při obnovení stránky přebil volbu – odstraní se
+    const u = new URL(location.href);
+    if (u.searchParams.has('lang')) { u.searchParams.delete('lang'); history.replaceState(null, '', u); }
+    applyLang();
+  }));
 
   skyInput.addEventListener('change', () => {
     try { localStorage.setItem('skybox', skyInput.checked ? '1' : '0'); } catch (e) {}
     refresh();
   });
-  refresh();
+  applyLang();
 </script>
 </body>
 </html>

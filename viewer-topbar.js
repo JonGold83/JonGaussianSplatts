@@ -14,6 +14,16 @@
   const fileName = file.split('/').pop();
   const title = params.get('title') || fileName.replace(/\.sog$/i, '').replace(/_/g, ' ');
   const skyOn = params.has('skybox');
+  // jazyk: ?lang= (předává index), jinak volba z indexu (localStorage), jinak jazyk prohlížeče
+  const lang = (() => {
+    const p = params.get('lang');
+    if (p === 'cs' || p === 'en') return p;
+    try { const s = localStorage.getItem('lang'); if (s === 'cs' || s === 'en') return s; } catch (e) {}
+    return (navigator.languages || [navigator.language || '']).some(l => /^(cs|sk)/i.test(l)) ? 'cs' : 'en';
+  })();
+  const L = lang === 'en'
+    ? { back: 'Back', backTitle: 'Back to the list of splats', sky: 'Sky', skyTitle: 'Sky background', site: 'Drone Gaussian Splats' }
+    : { back: 'Zpět', backTitle: 'Zpět na seznam splatů', sky: 'Nebe', skyTitle: 'Zobrazení nebe', site: 'Gaussian Splaty z dronu' };
 
   const css = `
     :root { --topbar:${BAR}px; }
@@ -53,18 +63,18 @@
   const bar = document.createElement('div');
   bar.id = 'topbar';
   bar.innerHTML = `
-    <a class="back" href="${ROOT || './'}" title="Zpět na seznam splatů">
+    <a class="back" href="${ROOT || './'}" title="${L.backTitle}">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      <span class="lbl">Zpět</span>
+      <span class="lbl">${L.back}</span>
     </a>
     <div class="title"><b>${esc(title)}</b>${fileName ? `<small>${esc(fileName)}</small>` : ''}</div>
-    <label class="switch" title="Zobrazení nebe">
-      <span class="lbl">Nebe</span>
+    <label class="switch" title="${L.skyTitle}">
+      <span class="lbl">${L.sky}</span>
       <input type="checkbox" ${skyOn ? 'checked' : ''}>
       <span class="track"></span>
     </label>`;
   document.body.appendChild(bar);
-  document.title = `${title} – Gaussian Splaty`;
+  document.title = `${title} – ${L.site}`;
 
   // Přepnutí nebe = znovunačtení s/bez parametru skybox (model se většinou vezme z cache prohlížeče)
   bar.querySelector('input').addEventListener('change', e => {
