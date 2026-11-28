@@ -7,9 +7,9 @@
 <style>
   :root { --bg:#0e0f11; --card:#17191c; --line:#26292e; --text:#e6e3e0; --muted:#8a8f96; --accent:#ffaf50; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; padding:56px 16px; }
+  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; padding:28px 16px 56px; }
   main { max-width:720px; margin:0 auto; position:relative; }
-  h1 { font-size:28px; font-weight:650; letter-spacing:-.01em; }
+  h1 { font-size:28px; font-weight:650; letter-spacing:-.01em; padding-right:90px; }
   .sub { color:var(--muted); margin:6px 0 36px; font-size:15px; }
   ul { list-style:none; display:grid; gap:10px; }
   .item { display:flex; align-items:center; gap:16px; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; color:inherit; text-decoration:none; cursor:pointer; transition:border-color .15s, transform .15s; }
@@ -27,8 +27,6 @@
   .nadir { display:inline-flex; margin-left:6px; vertical-align:-2px; color:var(--muted); cursor:help; }
   .nadir svg { width:15px; height:15px; }
   .item:hover .nadir { color:var(--accent); }
-  /* velikost souboru (doplní se z hlavičky Content-Length) */
-  .size { white-space:nowrap; }
   /* hlavička skupiny a položky s náhledem: tlumený náhled v pozadí, při najetí barevně */
   summary.item, .item.hasbg { position:relative; overflow:hidden; }
   summary.item > :not(.gbg), .item.hasbg > :not(.gbg) { position:relative; }
@@ -74,7 +72,7 @@
   /* prepinac nebe */
   .toolbar { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin:-20px 0 12px; }
   /* přepínač jazyka CZ | EN */
-  .lang { position:absolute; top:-36px; right:0; display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .lang { position:absolute; top:4px; right:0; display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
   .lang button { background:none; border:0; padding:4px 9px; font:inherit; font-size:12px; letter-spacing:.06em; color:var(--muted); cursor:pointer; transition:color .15s, background .15s; }
   .lang button + button { border-left:1px solid var(--line); }
   .lang button:hover { color:var(--text); }
@@ -132,55 +130,55 @@
   // Skupina s 1 variantou = primy odkaz bez rozbaleni
   const groups = [
     { name: 'Kostel Levý Hradec', meta: 'Kostel sv. Klimenta a hřbitov', variants: [
-      ['Kostel a hřbitov', '4,6M Gaussian · SH1 · 30k iter · 319 snímků', 'Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog'],
-      ['Kostel',           '4,7M Gaussian · 30k iter',                   'Kostel_Levy_Hradec_4,7M_30k-iter_clean.sog'],
-      ['Kostel – low density', '1,8M Gaussian · SH1 · 30k iter',           'Kostel_Levy_Hradec_LowDensity_1,8M_SH1_30k-iter.sog'],
+      ['Kostel a hřbitov', '4,6M Gaussian · SH1 · 30k iter · 319 snímků · 64 MB', 'Kostel_Levy_Hradec_319cam_4,6M_SH1_30k-iter.sog'],
+      ['Kostel',           '4,7M Gaussian · 30k iter · 64 MB',                   'Kostel_Levy_Hradec_4,7M_30k-iter_clean.sog'],
+      ['Kostel – low density', '1,8M Gaussian · SH1 · 30k iter · 26 MB',           'Kostel_Levy_Hradec_LowDensity_1,8M_SH1_30k-iter.sog'],
     ]},
     { name: 'Kaple Suchdol', meta: '7. 11. 2026', variants: [
-      ['Plná verze',          '4M Gaussian · SH2',    'Kaple_Suchdol-2026_11_07-GausSplat_4M_SH2_cz.sog'],
-      ['Kaple – 3,9M',        '3,9M Gaussian · SH1 · 30k iter', 'Kaple_Suchdol_3,9M_SH1_30k-iter.sog'],
-      ['Kaple – low density', '0,8M Gaussian · SH1 · 30k iter', 'Kaple_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
-      ['v2 low density',         '1,9M Gaussian',        'Kaple_30k_1,9_Mgaus.sog'],
-      ['v2 low density – crop',  '1,2M Gaussian',         'Kaple_30k_1,2M_gaus_CROP.sog'],
-      ['v2 low – jen kaple',  '0,36M Gaussian',       'Kaple_30k_0,36Mgaus_JEN kaple.sog'],
+      ['Plná verze',          '4M Gaussian · SH2 · 56 MB',    'Kaple_Suchdol-2026_11_07-GausSplat_4M_SH2_cz.sog'],
+      ['Kaple – 3,9M',        '3,9M Gaussian · SH1 · 30k iter · 55 MB', 'Kaple_Suchdol_3,9M_SH1_30k-iter.sog'],
+      ['Kaple – low density', '0,8M Gaussian · SH1 · 30k iter · 12 MB', 'Kaple_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
+      ['v2 low density',         '1,9M Gaussian · 23 MB',        'Kaple_30k_1,9_Mgaus.sog'],
+      ['v2 low density – crop',  '1,2M Gaussian · 13 MB',         'Kaple_30k_1,2M_gaus_CROP.sog'],
+      ['v2 low – jen kaple',  '0,36M Gaussian · 4 MB',       'Kaple_30k_0,36Mgaus_JEN kaple.sog'],
     ]},
     { name: 'Stožár BTS Klecany', meta: 'Plná verze · low density', variants: [
-      ['Stožár BTS Klecany', '4,4M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_4,4M_SH1_30k-iter.sog'],
-      ['Stožár BTS Klecany – low density', '0,9M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_LowDensity_0,9M_SH1_30k-iter.sog'],
+      ['Stožár BTS Klecany', '4,4M Gaussian · SH1 · 30k iter · 61 MB', 'Klecany_Stozar_BTS_4,4M_SH1_30k-iter.sog'],
+      ['Stožár BTS Klecany – low density', '0,9M Gaussian · SH1 · 30k iter · 13 MB', 'Klecany_Stozar_BTS_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
     { name: 'Hřbitov Suchdol', meta: 'Plná verze · low density', nadir: true, variants: [
-      ['Hřbitov Suchdol', '4,0M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_4,0M_SH1_30k-iter.sog'],
-      ['Hřbitov Suchdol – low density', '0,8M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
+      ['Hřbitov Suchdol', '4,0M Gaussian · SH1 · 30k iter · 55 MB', 'Hrbitov_Suchdol_4,0M_SH1_30k-iter.sog'],
+      ['Hřbitov Suchdol – low density', '0,8M Gaussian · SH1 · 30k iter · 12 MB', 'Hrbitov_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
     ]},
     { name: 'Stavby a deponie', meta: 'Deponie Horoměřice · Stavba školy · Stavba Klecany 11', collapse: true, variants: [
-      ['Deponie Horoměřice', '4,5M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_4,5M_SH1_30k-iter.sog'],
-      ['Deponie Horoměřice – low density', '0,9M Gaussian · SH1 · 30k iter', 'Hromady_Horomerice_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Stavba školy', '4,0M Gaussian · SH1 · 30k iter', 'Stavba_Skola_4,0M_SH1_30k-iter.sog', { nadir: true }],
-      ['Stavba školy – low density', '0,8M Gaussian · SH1 · 30k iter', 'Stavba_Skola_LowDensity_0,8M_SH1_30k-iter.sog', { nadir: true }],
-      ['Stavba Klecany 11', '4,1M Gaussian · SH1 · 30k iter', 'Stavba_Klecany11_4,1M_SH1_30k-iter.sog', { nadir: true }],
-      ['Stavba Klecany 11 – low density', '0,8M Gaussian · SH1 · 30k iter', 'Stavba_Klecany11_LowDensity_0,8M_SH1_30k-iter.sog', { nadir: true }],
+      ['Deponie Horoměřice', '4,5M Gaussian · SH1 · 30k iter · 61 MB', 'Hromady_Horomerice_4,5M_SH1_30k-iter.sog'],
+      ['Deponie Horoměřice – low density', '0,9M Gaussian · SH1 · 30k iter · 12 MB', 'Hromady_Horomerice_LowDensity_0,9M_SH1_30k-iter.sog'],
+      ['Stavba školy', '4,0M Gaussian · SH1 · 30k iter · 56 MB', 'Stavba_Skola_4,0M_SH1_30k-iter.sog', { nadir: true }],
+      ['Stavba školy – low density', '0,8M Gaussian · SH1 · 30k iter · 12 MB', 'Stavba_Skola_LowDensity_0,8M_SH1_30k-iter.sog', { nadir: true }],
+      ['Stavba Klecany 11', '4,1M Gaussian · SH1 · 30k iter · 58 MB', 'Stavba_Klecany11_4,1M_SH1_30k-iter.sog', { nadir: true }],
+      ['Stavba Klecany 11 – low density', '0,8M Gaussian · SH1 · 30k iter · 12 MB', 'Stavba_Klecany11_LowDensity_0,8M_SH1_30k-iter.sog', { nadir: true }],
     ]},
     { name: 'Rodinné domy', meta: 'Karel · Klekle 2 · Halouny', variants: [
-      ['Karel',    '4,4M Gaussian · SH1 · 30k iter',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
-      ['Karel – low density', '0,9M Gaussian · SH1 · 30k iter', 'Karel_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
-      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter',           'Klekle2_4,3M_SH1_30k-iter.sog'],
-      ['Klekle 2 – low density', '1,8M Gaussian · SH1 · 30k iter', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
-      ['Halouny',  '4,5M Gaussian · SH1 · 30k iter',           'Halouny_Dum_4,5M_SH1_30k-iter.sog'],
-      ['Halouny – low density', '0,9M Gaussian · SH1 · 30k iter', 'Halouny_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
+      ['Karel',    '4,4M Gaussian · SH1 · 30k iter · 63 MB',           'Karel_Dum_4,4M_SH1_30k-iter.sog'],
+      ['Karel – low density', '0,9M Gaussian · SH1 · 30k iter · 13 MB', 'Karel_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
+      ['Klekle 2', '4,3M Gaussian · SH1 · 30k iter · 61 MB',           'Klekle2_4,3M_SH1_30k-iter.sog'],
+      ['Klekle 2 – low density', '1,8M Gaussian · SH1 · 30k iter · 25 MB', 'Klekle2_LowDensity_1,8M_SH1_30k-iter.sog'],
+      ['Halouny',  '4,5M Gaussian · SH1 · 30k iter · 63 MB',           'Halouny_Dum_4,5M_SH1_30k-iter.sog'],
+      ['Halouny – low density', '0,9M Gaussian · SH1 · 30k iter · 13 MB', 'Halouny_Dum_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
     { name: 'Domy nad Vltavským údolím', meta: '2 termíny', variants: [
-      ['Listopad 2026 – high density', '7. 11. 2026 · 6M Gaussian',            'Domy_nad_Vltavskym_udolim_2026-11-07_6M_high_density.sog'],
-      ['Listopad 2026',                '7. 11. 2026 · 4,5M Gaussian',          'Domy_nad_Vltavskym_udolim_2026-11-07_4-5M.sog'],
-      ['Listopad 2026 – low density',  '7. 11. 2026 · 2M Gaussian · 90k iter', 'Domy_nad_Vltavskym_udolim_2026-11-07_2M_low_dendisty.sog'],
-      ['Červenec 2026',                '21. 7. 2026 · 6,6M Gaussian',          'Domy_nad_Vltavskym_udolim_2026-07-21_6-6M.sog'],
+      ['Listopad 2026 – high density', '7. 11. 2026 · 6M Gaussian · 82 MB',            'Domy_nad_Vltavskym_udolim_2026-11-07_6M_high_density.sog'],
+      ['Listopad 2026',                '7. 11. 2026 · 4,5M Gaussian · 61 MB',          'Domy_nad_Vltavskym_udolim_2026-11-07_4-5M.sog'],
+      ['Listopad 2026 – low density',  '7. 11. 2026 · 2M Gaussian · 90k iter · 27 MB', 'Domy_nad_Vltavskym_udolim_2026-11-07_2M_low_dendisty.sog'],
+      ['Červenec 2026',                '21. 7. 2026 · 6,6M Gaussian · 92 MB',          'Domy_nad_Vltavskym_udolim_2026-07-21_6-6M.sog'],
     ]},
     { name: 'Stožár BTS Zlatníky', meta: '28. 8. 2026', variants: [
-      ['Stožár BTS Zlatníky', '28. 8. 2026 · 3,5M Gaussian · SH1 · 30k iter', 'Stozar_BTS_Zlatniky_3,5M_SH1_30k-iter.sog'],
-      ['Stožár BTS Zlatníky – low density', '0,8M Gaussian · SH1 · 30k iter', 'Stozar_BTS_Zlatniky_LowDensity_0,8M_SH1_30k-iter.sog'],
+      ['Stožár BTS Zlatníky', '28. 8. 2026 · 3,5M Gaussian · SH1 · 30k iter · 48 MB', 'Stozar_BTS_Zlatniky_3,5M_SH1_30k-iter.sog'],
+      ['Stožár BTS Zlatníky – low density', '0,8M Gaussian · SH1 · 30k iter · 11 MB', 'Stozar_BTS_Zlatniky_LowDensity_0,8M_SH1_30k-iter.sog'],
     ]},
     { name: 'Liblice', meta: 'Stožáry týden před odstřelem · 7. 10. 2026', variants: [
-      ['Liblice – 3,3M',      '3,3M Gaussian · SH1 · 30k iter', 'Liblice_3,3M_SH1_30k-iter.sog'],
-      ['Liblice – low density', '0,7M Gaussian · SH1 · 30k iter', 'Liblice_LowDensity_0,7M_SH1_30k-iter.sog'],
+      ['Liblice – 3,3M',      '3,3M Gaussian · SH1 · 30k iter · 46 MB', 'Liblice_3,3M_SH1_30k-iter.sog'],
+      ['Liblice – low density', '0,7M Gaussian · SH1 · 30k iter · 11 MB', 'Liblice_LowDensity_0,7M_SH1_30k-iter.sog'],
     ]},
   ];
 
@@ -312,24 +310,13 @@
   const gbg = f => f ? `<span class="gbg" style="background-image:url('${thumbUrl(f)}')"></span>` : '';
   const row = (n, m, extra = '', f = '', nadir = false) =>
     `${gbg(f)}<span class="dot"></span><span><div class="name">${n}${nadir ? nadirIcon() : ''}${f ? `<span class="new" data-new="${f}" hidden>${t().badge}</span>` : ''}</div>` +
-    `<div class="meta">${m}${f ? `<span class="size" data-size="${f}"></span>` : ''}</div></span>${extra}<span class="go">→</span>`;
+    `<div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
 
   // ---------- Seznam modelů ----------
   const list = document.getElementById('list');
   // Rozbalené skupiny si pamatuje sessionStorage, aby zůstaly otevřené po návratu z vieweru (klíč = český název)
   let openGroups = [];
   try { openGroups = JSON.parse(sessionStorage.getItem('openGroups') || '[]'); } catch (e) {}
-  const sizes = new Map(); // soubor -> bajty (HEAD), ať se při přepnutí jazyka nenačítají znovu
-  const fmtSize = b => b >= 1e6 ? `${Math.round(b / 1e6)} MB` : `${Math.max(1, Math.round(b / 1e3))} kB`;
-  const loadSizes = root => root.querySelectorAll('.size[data-size]:empty').forEach(async el => {
-    const f = el.dataset.size;
-    try {
-      if (!sizes.has(f)) sizes.set(f, fetch(f, { method: 'HEAD' }).then(r => +r.headers.get('Content-Length')));
-      const len = await sizes.get(f);
-      if (len) el.textContent = ` · ${fmtSize(len)}`;
-    } catch (e) {}
-  });
-
   // Štítek „nové“: soubory přidané/nahrazené za posledních NEW_HOURS hodin (history.json)
   const NEW_HOURS = 24;
   let historyRows = null;
@@ -359,11 +346,8 @@
         }).join('')}</ul>
       </details></li>`;
     }).join('');
-    list.querySelectorAll(':scope > li.pair').forEach(loadSizes);
     list.querySelectorAll('details[data-g]').forEach(d => {
-      if (d.open) loadSizes(d);
       d.addEventListener('toggle', () => {
-        if (d.open) loadSizes(d);
         openGroups = [...list.querySelectorAll('details[data-g]')].filter(x => x.open).map(x => x.dataset.g);
         try { sessionStorage.setItem('openGroups', JSON.stringify(openGroups)); } catch (e) {}
       });
