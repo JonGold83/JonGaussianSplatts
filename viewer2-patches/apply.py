@@ -71,6 +71,40 @@ def main(src, dst):
     js = patch(js, "const createRotateTrack = (position, target, fov, keys = 12, duration = 20) => {",
                "// JonGaussianSplatts: pomalejsi a plynuly oblet (360 klicu, 60 s na otocku)\n"
                "const createRotateTrack = (position, target, fov, keys = 360, duration = 60) => {", "rychlost obletu")
+
+    # 5) omezení náklonu kamery parametrem ?minpitch=<stupně> (kamera musí koukat aspoň tolik
+    #    stupňů dolů pod horizont) – pro modely trénované jen z nadirových fotek
+    js = patch(js, "const DEFAULT_CAMERA_FOV = 50;",
+               "// JonGaussianSplatts: ?minpitch=N = kamera vzdy hledi aspon N stupnu pod horizont\n"
+               "const JGS_MIN_PITCH = (() => {\n"
+               "    const v = parseFloat(new URLSearchParams(location.search).get('minpitch'));\n"
+               "    return Number.isFinite(v) ? Math.max(0, Math.min(89, v)) : null;\n"
+               "})();\n"
+               "const jgsClampPitch = (angles) => {\n"
+               "    if (JGS_MIN_PITCH !== null) angles.x = Math.max(-90, Math.min(-JGS_MIN_PITCH, angles.x));\n"
+               "    return angles;\n"
+               "};\n"
+               "// smer kamery ze sceny s danym sklonem (ve stupnich nad horizontem), respektuje minpitch\n"
+               "const jgsViewDir = (elevation) => {\n"
+               "    const e = (Math.max(elevation, JGS_MIN_PITCH ?? -90) * Math.PI) / 180;\n"
+               "    return new Vec3(Math.cos(e) * Math.SQRT1_2, Math.sin(e), Math.cos(e) * Math.SQRT1_2);\n"
+               "};\n"
+               "const DEFAULT_CAMERA_FOV = 50;", "náklon – parametr")
+    js = patch(js, "    return createCamera(new Vec3(2, 3, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);",
+               "    return createCamera(jgsViewDir(Math.atan2(3, Math.SQRT2 * 2) * 180 / Math.PI).mulScalar(distance).add(bbox.center), bbox.center, fov);",
+               "náklon – úvodní pohled")
+    js = patch(js, "    return createCamera(new Vec3(2, 1, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);",
+               "    return createCamera(jgsViewDir(Math.atan2(1, Math.SQRT2 * 2) * 180 / Math.PI).mulScalar(distance).add(bbox.center), bbox.center, fov);",
+               "náklon – zarámovat")
+    js = patch(js, "        this.controller.pitchRange = new Vec2(-90, 90);",
+               "        this.controller.pitchRange = new Vec2(-90, JGS_MIN_PITCH !== null ? -JGS_MIN_PITCH : 90);",
+               "náklon – orbit")
+    js = patch(js, "        p.angles.copy(camera.angles);\n        p.distance = Math.max(camera.distance, this.controller.zoomRange.x);",
+               "        jgsClampPitch(p.angles.copy(camera.angles));\n        p.distance = Math.max(camera.distance, this.controller.zoomRange.x);",
+               "náklon – orbit při přepnutí")
+    js = patch(js, "        const { move, rotate } = inputFrame.read();\n        applyFrameRotation(this._targetAngles, rotate);\n        dampAngles(this._angles, this._targetAngles, this.rotateDamping, deltaTime);\n        this._step(move);",
+               "        const { move, rotate } = inputFrame.read();\n        applyFrameRotation(this._targetAngles, rotate);\n        jgsClampPitch(this._targetAngles);\n        dampAngles(this._angles, this._targetAngles, this.rotateDamping, deltaTime);\n        this._step(move);",
+               "náklon – létání")
     open(p, "w", encoding="utf-8", newline="").write(js)
 
     # ---------- index.html ----------

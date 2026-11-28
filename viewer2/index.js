@@ -99221,6 +99221,20 @@ class Quality {
 // Annotated so the published declaration widens to `number`; without it the emitted type is
 // the literal `75`, which bakes the value into the api.
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+// JonGaussianSplatts: ?minpitch=N = kamera vzdy hledi aspon N stupnu pod horizont
+const JGS_MIN_PITCH = (() => {
+    const v = parseFloat(new URLSearchParams(location.search).get('minpitch'));
+    return Number.isFinite(v) ? Math.max(0, Math.min(89, v)) : null;
+})();
+const jgsClampPitch = (angles) => {
+    if (JGS_MIN_PITCH !== null) angles.x = Math.max(-90, Math.min(-JGS_MIN_PITCH, angles.x));
+    return angles;
+};
+// smer kamery ze sceny s danym sklonem (ve stupnich nad horizontem), respektuje minpitch
+const jgsViewDir = (elevation) => {
+    const e = (Math.max(elevation, JGS_MIN_PITCH ?? -90) * Math.PI) / 180;
+    return new Vec3(Math.cos(e) * Math.SQRT1_2, Math.sin(e), Math.cos(e) * Math.SQRT1_2);
+};
 const DEFAULT_CAMERA_FOV = 50; // JonGaussianSplatts: puvodne 85
 /**
  * Default post-processing settings, with every effect disabled.
@@ -108919,6 +108933,7 @@ class FlyController {
         }
         const { move, rotate } = inputFrame.read();
         applyFrameRotation(this._targetAngles, rotate);
+        jgsClampPitch(this._targetAngles);
         dampAngles(this._angles, this._targetAngles, this.rotateDamping, deltaTime);
         this._step(move);
         camera.position.copy(this._position);
@@ -109194,7 +109209,7 @@ class OrbitController {
     constructor() {
         this.controller = new OrbitController$1();
         this.controller.zoomRange = new Vec2(0.01, Infinity);
-        this.controller.pitchRange = new Vec2(-90, 90);
+        this.controller.pitchRange = new Vec2(-90, JGS_MIN_PITCH !== null ? -JGS_MIN_PITCH : 90);
         this.controller.rotateDamping = DEFAULT_CONTROLLER_DAMPING;
         this.controller.moveDamping = DEFAULT_CONTROLLER_DAMPING;
         this.controller.zoomDamping = DEFAULT_CONTROLLER_DAMPING;
@@ -109218,7 +109233,7 @@ class OrbitController {
     }
     _attach(camera) {
         p.position.copy(camera.position);
-        p.angles.copy(camera.angles);
+        jgsClampPitch(p.angles.copy(camera.angles));
         p.distance = Math.max(camera.distance, this.controller.zoomRange.x);
         this.controller.attach(p, false);
     }
@@ -109881,12 +109896,12 @@ const createCamera = (position, target, fov) => {
 const createStartCamera = (bbox, fov) => {
     const sceneSize = bbox.halfExtents.length();
     const distance = sceneSize / Math.sin((fov / 180) * Math.PI * 0.8);
-    return createCamera(new Vec3(2, 3, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);
+    return createCamera(jgsViewDir(Math.atan2(3, Math.SQRT2 * 2) * 180 / Math.PI).mulScalar(distance).add(bbox.center), bbox.center, fov);
 };
 const createFrameCamera = (bbox, fov) => {
     const sceneSize = bbox.halfExtents.length();
     const distance = sceneSize / Math.sin((fov / 180) * Math.PI * 0.5);
-    return createCamera(new Vec3(2, 1, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);
+    return createCamera(jgsViewDir(Math.atan2(1, Math.SQRT2 * 2) * 180 / Math.PI).mulScalar(distance).add(bbox.center), bbox.center, fov);
 };
 class CameraManager {
     update;

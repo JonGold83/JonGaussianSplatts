@@ -109,7 +109,7 @@
       ['Stožár BTS Klecany', '4,4M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_4,4M_SH1_30k-iter.sog'],
       ['Stožár BTS Klecany – low density', '0,9M Gaussian · SH1 · 30k iter', 'Klecany_Stozar_BTS_LowDensity_0,9M_SH1_30k-iter.sog'],
     ]},
-    { name: 'Hřbitov Suchdol', meta: 'Plná verze · low density', variants: [
+    { name: 'Hřbitov Suchdol', meta: 'Plná verze · low density', minpitch: 30, variants: [
       ['Hřbitov Suchdol', '4,0M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_4,0M_SH1_30k-iter.sog'],
       ['Hřbitov Suchdol – low density', '0,8M Gaussian · SH1 · 30k iter', 'Hrbitov_Suchdol_LowDensity_0,8M_SH1_30k-iter.sog'],
     ]},
@@ -153,10 +153,11 @@
     (t ? `&title=${encodeURIComponent(t)}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent(SKYBOX)}` : '');
   // nový viewer v podsložce viewer2/: cesty k souborům jsou o úroveň výš
-  const url2 = (f, t) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
-    (t ? `&title=${encodeURIComponent(t)}` : '') +
+  // minpitch (u skupiny): kamera v novém vieweru hledí vždy aspoň tolik stupňů dolů (modely jen z nadirových fotek)
+  const url2 = (f, t, mp) => `viewer2/?content=${encodeURIComponent('../' + f)}` +
+    (t ? `&title=${encodeURIComponent(t)}` : '') + (mp ? `&minpitch=${mp}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent('../' + SKYBOX)}` : '');
-  const alt = (f, t) => `<a class="alt" data-v="2" data-f="${f}" data-t="${t}" title="Otevřít v novém vieweru (SuperSplat)">nový viewer</a>`;
+  const alt = (f, t, mp) => `<a class="alt" data-v="2" data-f="${f}" data-t="${t}"${mp ? ` data-mp="${mp}"` : ''} title="Otevřít v novém vieweru (SuperSplat)">nový viewer</a>`;
   const attr = s => s.replace(/"/g, '&quot;');
   const row = (n, m, extra = '') =>
     `<span class="dot"></span><span><div class="name">${n}</div><div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
@@ -164,11 +165,11 @@
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1 && !g.collapse)
-      return `<li class="pair"><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
+      return `<li class="pair"><a class="item" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name), g.minpitch)}</li>`;
     return `<li><details data-g="${attr(g.name)}">
       <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f]) =>
-        `<li class="pair"><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
+        `<li class="pair"><a class="item" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n), g.minpitch)}</li>`).join('')}</ul>
     </details></li>`;
   }).join('');
 
@@ -185,7 +186,7 @@
 
   // Odkazy si pamatují soubor v data-f; přepínač jen přepíše href (rozbalené skupiny zůstanou otevřené)
   const refresh = () => {
-    list.querySelectorAll('a[data-f]').forEach(a => a.href = (a.dataset.v === '2' ? url2 : url)(a.dataset.f, a.dataset.t));
+    list.querySelectorAll('a[data-f]').forEach(a => a.href = (a.dataset.v === '2' ? url2 : url)(a.dataset.f, a.dataset.t, a.dataset.mp));
     document.getElementById('skyState').textContent = skyInput.checked ? 'on' : 'off';
   };
   // Historie změn: history.json (nejnovější nahoře), načte se až po rozbalení

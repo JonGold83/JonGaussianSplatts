@@ -20,6 +20,8 @@ Licence: MIT (PlayCanvas Ltd.), viz `LICENSE` a `THIRD_PARTY_NOTICES.md` ve slo�
 8. Patka „Made with LichtFeld Studio by Jonas Goldamer“ (`body-extras.html`).
 9. `settings.json` nastavuje černé pozadí a bez kamer, takže se pohled dopočítá automaticky.
 
+10. Parametr `?minpitch=N` omezí náklon kamery: kamera vždy hledí aspoň N stupňů pod horizont (orbit, létání, úvodní pohled i Zarámovat). Je pro modely trénované jen z nadirových fotek. V indexu se nastavuje u skupiny polem `minpitch: N`.
+
 ## Přechod na novou verzi
 
 ```
