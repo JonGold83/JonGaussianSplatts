@@ -67,10 +67,10 @@ def main(src, dst):
                "            ? createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov)\n"
                "            : createStartCamera(bbox, defaultFov);", "úvodní pohled – použití")
 
-    # 4) pomalejší oblet: 60 s na otočku
+    # 4) pomalejší a plynulý oblet: 60 s na otočku, 360 klíčů (s 24 klíči spline kolísal rychlostí o ~2 %)
     js = patch(js, "const createRotateTrack = (position, target, fov, keys = 12, duration = 20) => {",
-               "// JonGaussianSplatts: pomalejsi oblet (24 klicu, 60 s na otocku)\n"
-               "const createRotateTrack = (position, target, fov, keys = 24, duration = 60) => {", "rychlost obletu")
+               "// JonGaussianSplatts: pomalejsi a plynuly oblet (360 klicu, 60 s na otocku)\n"
+               "const createRotateTrack = (position, target, fov, keys = 360, duration = 60) => {", "rychlost obletu")
     open(p, "w", encoding="utf-8", newline="").write(js)
 
     # ---------- index.html ----------

@@ -14,7 +14,7 @@ Licence: MIT (PlayCanvas Ltd.), viz `LICENSE` a `THIRD_PARTY_NOTICES.md` ve slo�
    - směr kamery je (2, 3, 2);
    - vzdálenost je `sin(0.8·fov)` jako v původním vieweru.
 4. **Zarámovat** nechává originální pohled na celou scénu, takže se obě tlačítka liší.
-5. Oblet trvá 60 s na otočku (v originále 20 s).
+5. Oblet trvá 60 s na otočku (v originále 20 s) a má 360 klíčových bodů místo 12, takže jde rovnoměrnou rychlostí bez vlnění.
 6. Nápověda (panel ovládání) se otevře při každém načtení.
 7. Horní lišta Zpět · název · Nebe (`../viewer-topbar.js`), viewer je pod ní v `#stage`.
 8. Patka „Made with LichtFeld Studio by Jonas Goldamer“ (`body-extras.html`).

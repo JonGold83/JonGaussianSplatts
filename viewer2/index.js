@@ -108033,8 +108033,8 @@ const createFigure8Track = (position, target, fov, size = 1, keys = 24, duration
  * @param duration - The duration of the animation in seconds.
  * @returns - The animation track object containing position and target keyframes.
  */
-// JonGaussianSplatts: pomalejsi oblet (24 klicu, 60 s na otocku)
-const createRotateTrack = (position, target, fov, keys = 24, duration = 60) => {
+// JonGaussianSplatts: pomalejsi a plynuly oblet (360 klicu, 60 s na otocku)
+const createRotateTrack = (position, target, fov, keys = 360, duration = 60) => {
     const times = new Array(keys).fill(0).map((_, i) => (i / keys) * duration);
     const positions = [];
     const targets = [];
