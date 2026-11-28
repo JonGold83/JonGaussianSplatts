@@ -20,22 +20,53 @@
   .go { margin-left:auto; color:var(--muted); font-size:20px; transition:transform .2s, color .15s; }
   .item:hover .go { color:var(--accent); }
   .count { color:var(--muted); font-size:12px; border:1px solid var(--line); border-radius:20px; padding:2px 8px; }
+  /* štítek „nové“ (přidáno/nahrazeno za posledních NEW_HOURS hodin podle history.json) */
+  .new[hidden] { display:none; }
+  .new { cursor:help; display:inline-block; margin-left:8px; padding:1px 7px; border-radius:20px; font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; vertical-align:2px; color:var(--bg); background:var(--accent); }
+  /* ikona nadirového modelu (hover = vysvětlení) */
+  .nadir { display:inline-flex; margin-left:6px; vertical-align:-2px; color:var(--muted); cursor:help; }
+  .nadir svg { width:15px; height:15px; }
+  .item:hover .nadir { color:var(--accent); }
+  /* velikost souboru (doplní se z hlavičky Content-Length) */
+  .size { white-space:nowrap; }
+  /* hlavička skupiny a položky s náhledem: tlumený náhled v pozadí, při najetí barevně */
+  summary.item, .item.hasbg { position:relative; overflow:hidden; }
+  summary.item > :not(.gbg), .item.hasbg > :not(.gbg) { position:relative; }
+  .gbg { position:absolute; inset:0 0 0 35%; background-size:cover; background-position:center; filter:grayscale(1); opacity:.16;
+    -webkit-mask-image:linear-gradient(to right, transparent, #000 60%); mask-image:linear-gradient(to right, transparent, #000 60%); transition:opacity .3s, filter .3s; pointer-events:none; }
+  summary.item:hover .gbg, .item.hasbg:hover .gbg { filter:none; opacity:.32; }
 
   /* skupina */
   details summary { list-style:none; }
   details summary::-webkit-details-marker { display:none; }
+  summary.item { transition:border-color .15s, transform .15s, border-bottom-left-radius .22s ease, border-bottom-right-radius .22s ease; }
   details[open] > summary { border-color:var(--accent); border-bottom-left-radius:4px; border-bottom-right-radius:4px; }
   details[open] > summary .go { transform:rotate(90deg); color:var(--accent); }
   .sublist { margin:6px 0 0 22px; padding-left:14px; border-left:1px solid var(--line); gap:6px; }
   .sublist .item { padding:12px 16px; border-radius:10px; }
   .sublist .dot { width:7px; height:7px; box-shadow:none; opacity:.7; }
   .sublist .name { font-size:15px; font-weight:500; }
+  /* jemná animace rozbalení: výška (Chrome/Edge 131+, jinde okamžitě) + varianty se zprůhledna posunou o pár px */
+  :root { interpolate-size:allow-keywords; }
+  details::details-content { block-size:0; overflow:clip; overflow-clip-margin:4px; transition:block-size .22s ease, content-visibility .22s allow-discrete; }
+  details[open]::details-content { block-size:auto; }
+  details[open] .sublist > li { animation:slideIn .22s ease both; }
+  details[open] .sublist > li:nth-child(2) { animation-delay:.03s; }
+  details[open] .sublist > li:nth-child(3) { animation-delay:.06s; }
+  details[open] .sublist > li:nth-child(4) { animation-delay:.09s; }
+  details[open] .sublist > li:nth-child(n+5) { animation-delay:.12s; }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-4px); } }
+  .go { transition:transform .22s ease, color .15s; }
+  @media (prefers-reduced-motion: reduce) {
+    details::details-content { transition:none; }
+    details[open] .sublist > li { animation:none; }
+  }
   /* položka (nový viewer, viewer2/ SuperSplat) + tlačítko do staršího vieweru (LichtFeld) */
   .pair { display:flex; gap:6px; align-items:stretch; }
   .pair > .item:first-child { flex:1; min-width:0; }
-  .alt { flex:none; display:flex; align-items:center; justify-content:center; text-align:center; width:76px; padding:6px; font-size:11px; line-height:1.25; color:var(--muted); background:var(--card); border:1px solid var(--line); border-radius:10px; text-decoration:none; transition:border-color .15s, color .15s; }
+  .alt { flex:none; display:flex; align-items:center; justify-content:center; text-align:center; width:56px; padding:6px 4px; font-size:11px; line-height:1.25; color:var(--muted); background:var(--card); border:1px solid var(--line); border-radius:10px; text-decoration:none; transition:border-color .15s, color .15s; }
   .alt:hover { border-color:var(--accent); color:var(--accent); }
-  @media (max-width:520px) { .alt { width:58px; font-size:10px; } }
+  @media (max-width:520px) { .alt { width:48px; font-size:10px; } }
 
   footer { color:var(--muted); font-size:12px; margin-top:40px; }
   footer a { color:var(--muted); }
@@ -163,21 +194,62 @@
     (t ? `&title=${encodeURIComponent(t)}` : '') + (mp ? `&minpitch=${mp}` : '') +
     (skyInput.checked ? `&skybox=${encodeURIComponent('../' + SKYBOX)}` : '');
   // hlavní odkaz = nový viewer (SuperSplat), tlačítko vpravo = starší viewer (LichtFeld)
-  const alt = (f, t) => `<a class="alt" data-v="1" data-f="${f}" data-t="${t}" title="Otevřít ve starším vieweru (LichtFeld Studio)">starší viewer</a>`;
+  const VIEWER2_VERSION = '1.44.0'; // při přechodu na novou verzi vieweru přepsat
+  const NEW_TITLE = `Otevřít model v prohlížeči (SuperSplat Viewer ${VIEWER2_VERSION})`;
+  const alt = (f, t) => `<a class="alt" data-v="1" data-f="${f}" data-t="${t}" title="Otevřít model ve starším prohlížeči (LichtFeld Studio)">starší<br>viewer</a>`;
   const attr = s => s.replace(/"/g, '&quot;');
-  const row = (n, m, extra = '') =>
-    `<span class="dot"></span><span><div class="name">${n}</div><div class="meta">${m}</div></span>${extra}<span class="go">→</span>`;
+  // náhled modelu: thumbs/<soubor>.jpg (barevný 4:1, první snímek úvodní animace); chybějící obrázek se prostě nezobrazí
+  const thumbUrl = f => `thumbs/${encodeURIComponent(f.replace(/\.sog$/, '.jpg'))}`;
+  const isNadir = (g, opt) => !!((opt && opt.nadir) || g.nadir);
+  const NADIR_ICON = `<span class="nadir" title="Nadirový model: snímaný jen shora, proto kamera nejde sklopit níž než ${MINPITCH_NADIR}° pod horizont."><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5v6M5.5 5 8 7.5 10.5 5"/><path d="M2 11.5 8 9l6 2.5L8 14z"/></svg></span>`;
+  // f = soubor (náhled, velikost, „nové“), nadir = ikona
+  const gbg = f => f ? `<span class="gbg" style="background-image:url('${thumbUrl(f)}')"></span>` : '';
+  const row = (n, m, extra = '', f = '', nadir = false) =>
+    `${gbg(f)}<span class="dot"></span><span><div class="name">${n}${nadir ? NADIR_ICON : ''}${f ? `<span class="new" data-new="${f}" hidden>nové</span>` : ''}</div>` +
+    `<div class="meta">${m}${f ? `<span class="size" data-size="${f}"></span>` : ''}</div></span>${extra}<span class="go">→</span>`;
 
   const list = document.getElementById('list');
   list.innerHTML = groups.map(g => {
     if (g.variants.length === 1 && !g.collapse)
-      return `<li class="pair"><a class="item" data-v="2" data-mp="${mpOf(g, g.variants[0][3])}" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta)}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
+      return `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, g.variants[0][3])}" title="${NEW_TITLE}" data-f="${g.variants[0][2]}" data-t="${attr(g.name)}">${row(g.name, g.meta, '', g.variants[0][2], isNadir(g, g.variants[0][3]))}</a>${alt(g.variants[0][2], attr(g.name))}</li>`;
+    const bgFile = g.variants[0][2];
+    const files = g.variants.map(v => v[2]).join('|');
     return `<li><details data-g="${attr(g.name)}">
-      <summary class="item">${row(g.name, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
+      <summary class="item">${gbg(bgFile)}${row(g.name + `<span class="new" data-new-any="${attr(files)}" hidden>nové</span>`, g.meta, `<span class="count">${g.variants.length} ${g.variants.length === 1 ? 'varianta' : g.variants.length < 5 ? 'varianty' : 'variant'}</span>`)}</summary>
       <ul class="sublist">${g.variants.map(([n, m, f, opt]) =>
-        `<li class="pair"><a class="item" data-v="2" data-mp="${mpOf(g, opt)}" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m)}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
+        `<li class="pair"><a class="item hasbg" data-v="2" data-mp="${mpOf(g, opt)}" title="${NEW_TITLE}" data-f="${f}" data-t="${attr(g.name + ' – ' + n)}">${row(n, m, '', f, isNadir(g, opt))}</a>${alt(f, attr(g.name + ' – ' + n))}</li>`).join('')}</ul>
     </details></li>`;
   }).join('');
+
+  // Velikost souborů: HEAD požadavek (Content-Length), u skupin až po rozbalení
+  const fmtSize = b => b >= 1e6 ? `${Math.round(b / 1e6)} MB` : `${Math.max(1, Math.round(b / 1e3))} kB`;
+  const loadSizes = root => root.querySelectorAll('.size[data-size]:empty').forEach(async el => {
+    try {
+      const len = +(await fetch(el.dataset.size, { method: 'HEAD' })).headers.get('Content-Length');
+      if (len) el.textContent = ` · ${fmtSize(len)}`;
+    } catch (e) {}
+  });
+  list.querySelectorAll(':scope > li.pair').forEach(loadSizes);
+  list.querySelectorAll('details[data-g]').forEach(d => {
+    if (d.open) loadSizes(d);
+    d.addEventListener('toggle', () => { if (d.open) loadSizes(d); });
+  });
+
+  // Štítek „nové“: soubory přidané/nahrazené za posledních NEW_HOURS hodin (history.json)
+  const NEW_HOURS = 24;
+  let historyRows = null;
+  const loadHistory = () => historyRows ??= fetch('history.json', { cache: 'no-cache' }).then(r => r.json());
+  loadHistory().then(rows => {
+    const since = Date.now() - NEW_HOURS * 36e5;
+    const fresh = new Set(rows.filter(r => (r.akce === 'přidáno' || r.akce === 'nahrazeno') &&
+      new Date(`${r.datum}T${r.cas || '00:00'}`).getTime() >= since).map(r => r.soubor));
+    const span = NEW_HOURS % 24 ? `${NEW_HOURS} hodin` : NEW_HOURS === 24 ? '24 hodin' : `${NEW_HOURS / 24} dní`;
+    list.querySelectorAll('.new').forEach(el => el.title = el.dataset.newAny
+      ? `Skupina obsahuje model nově nahraný nebo aktualizovaný během posledních ${span}`
+      : `Model nově nahraný nebo aktualizovaný během posledních ${span}`);
+    list.querySelectorAll('[data-new]').forEach(el => el.hidden = !fresh.has(el.dataset.new));
+    list.querySelectorAll('[data-new-any]').forEach(el => el.hidden = !el.dataset.newAny.split('|').some(f => fresh.has(f)));
+  }).catch(() => {});
 
   // Rozbalené skupiny si pamatuje sessionStorage, aby zůstaly otevřené po návratu z vieweru
   let openGroups = [];
@@ -207,7 +279,7 @@
     histToggle.setAttribute('aria-expanded', open);
     if (!open || histLoaded) return;
     try {
-      const rows = await (await fetch('history.json', { cache: 'no-cache' })).json();
+      const rows = await loadHistory();
       histLog.innerHTML = rows.map(r => `<div class="hist-row${r.akce === 'odstraněno' ? ' removed' : ''}">
         <span class="when">${esc(fmtDate(r.datum))} ${esc(r.cas)}</span>
         <span class="act${r.akce === 'přidáno' ? ' add' : ''}">${esc(r.akce)}</span>

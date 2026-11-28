@@ -37,4 +37,6 @@ python -I viewer2-patches/apply.py viewer2-orig viewer2
 
 Když skript nahlásí „CHYBA: úprava … nenašla svůj text“, nová verze změnila dotčený kód. Danou úpravu je pak potřeba přenést ručně a opravit ji v `apply.py`.
 
+V `index.html` přepiš `VIEWER2_VERSION` (číslo verze v popisku odkazů).
+
 Když nová verze přidá texty do `enJson` (anglický slovník v `index.js`), doplň je do `cs.json`. Chybějící texty se zobrazí anglicky.
